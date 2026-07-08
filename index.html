@@ -321,8 +321,8 @@ function render(data){
   byId("sonKaza").innerHTML=esc(trTarihUzun(a.son_kaza_tarihi));
   byId("safeBadge").innerHTML=(a.rekor_gun && gun>=parseInt(a.rekor_gun,10))?"YENİ REKOR!":"GÜVENDEYİZ";
 
-  var sk=(data.sariKart||[]).slice();
-  for(i=0;i<sk.length;i++){ sk[i].adet=parseInt(sk[i].adet,10)||0; }
+  var sk=[], raw=data.sariKart||[], ad;
+  for(i=0;i<raw.length;i++){ ad=parseInt(raw[i].adet,10); if(!isNaN(ad) && raw[i].isim){ sk.push({isim:raw[i].isim,adet:ad}); } }
   sk.sort(bySayiDesc("adet")); sk=sk.slice(0,7);
   var h="";
   for(i=0;i<sk.length;i++){
@@ -330,8 +330,8 @@ function render(data){
   }
   byId("liderlik").innerHTML=h||'<div class="empty">Kayıt yok</div>';
 
-  var tk=(data.tesisKart||[]).slice();
-  for(i=0;i<tk.length;i++){ tk[i].adet=parseInt(tk[i].adet,10)||0; }
+  var tk=[], rawt=data.tesisKart||[], adt;
+  for(i=0;i<rawt.length;i++){ adt=parseInt(rawt[i].adet,10); if(!isNaN(adt) && rawt[i].tesis){ tk.push({tesis:rawt[i].tesis,adet:adt}); } }
   tk.sort(bySayiDesc("adet")); tk=tk.slice(0,8);
   var mx=1; for(i=0;i<tk.length;i++){ if(tk[i].adet>mx) mx=tk[i].adet; }
   h="";
@@ -344,6 +344,7 @@ function render(data){
   var allk=(data.kurul||[]).slice();
   var kararlar=[], bilgi=[];
   for(i=0;i<allk.length;i++){
+    if(!allk[i].durum){ continue; }
     if((""+(allk[i].durum||"")).toLowerCase().indexOf("karar")>=0){ kararlar.push(allk[i]); }
     else { bilgi.push(allk[i]); }
   }
