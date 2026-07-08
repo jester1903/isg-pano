@@ -77,6 +77,10 @@
   .fbar .fill{height:100%;background:#F5C400;border-radius:10px;}
 
   .decwrap{flex:1;display:flex;flex-direction:column;justify-content:center;}
+  .kmadde{display:flex;align-items:center;padding:1.35vh .5vw;border-bottom:1px solid #2A343B;}
+  .kmadde .kn{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:2.6vh;color:#F5C400;width:4vh;text-align:center;margin-right:1.2vw;flex:0 0 auto;}
+  .kmadde.bilgi .kn{color:#7DB0FF;}
+  .kmadde .kt{flex:1;font-size:2.5vh;line-height:1.25;}
   .decision{display:flex;align-items:center;padding:2vh .5vw;border-bottom:1px solid #2A343B;}
   .decision .dt{color:#8A97A0;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:600;font-size:2.6vh;white-space:nowrap;width:9vh;margin-right:1.4vw;}
   .decision .tx{flex:1;font-size:2.9vh;line-height:1.2;margin-right:1.4vw;}
@@ -95,6 +99,7 @@
   .kcard{display:flex;align-items:center;background:#171E23;border:1px solid #2A343B;border-left:4px solid #FF5236;border-radius:12px;padding:2.2vh 1.8vw;margin:.9vh 0;}
   .kcard .mon{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3.4vh;color:#8A97A0;width:11vh;text-transform:uppercase;}
   .kcard .fac{flex:1;font-size:3vh;font-weight:600;}
+  .kcard .fac small{display:block;font-family:"Inter",Arial,sans-serif;font-size:1.7vh;font-weight:400;color:#8A97A0;margin-top:.4vh;}
   .kcard .typ{font-size:1.9vh;font-weight:600;padding:.6vh 1.2vw;border-radius:22px;background:rgba(255,82,54,.14);color:#FF5236;letter-spacing:.05em;text-transform:uppercase;margin:0 1.4vw;}
   .kcard .day{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3vh;color:#EAEEF1;width:12vh;text-align:right;}
   .kcard .day small{display:block;font-family:"Inter",Arial,sans-serif;font-weight:400;font-size:1.5vh;color:#8A97A0;text-transform:uppercase;letter-spacing:.1em;}
@@ -144,8 +149,13 @@
     </div>
 
     <div class="page">
-      <div class="ptitle"><div class="ico" style="background:#F5C400;"></div><h2>Kurul Kararları</h2></div>
-      <div class="decwrap" id="kararlar"></div>
+      <div class="ptitle"><div class="ico" style="background:#7DB0FF;"></div><h2>Kurul Toplantısı · Bilgilendirmeler</h2><div class="per" id="donemBilgi">—</div></div>
+      <div class="decwrap" id="kurulBilgi"></div>
+    </div>
+
+    <div class="page">
+      <div class="ptitle"><div class="ico" style="background:#F5C400;"></div><h2>Kurul Toplantısı · Kararlar</h2><div class="per" id="donemKarar">—</div></div>
+      <div class="decwrap" id="kurulKarar"></div>
     </div>
 
     <div class="page">
@@ -174,23 +184,40 @@ var AYKISA = ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas
 var GUNLER = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
 
 var DEMO = {
-  ayarlar:{ son_kaza_tarihi:"2026-04-06", rekor_gun:"210", tesis_adi:"BETEK" },
+  ayarlar:{ son_kaza_tarihi:"2026-05-05", rekor_gun:"210", tesis_adi:"GEBZE TESİSİ", kurul_donem:"Haziran 2026" },
   sariKart:[
-    {isim:"Ahmet Yılmaz",adet:14},{isim:"Mehmet Demir",adet:11},{isim:"Ayşe Kaya",adet:9},
-    {isim:"Hasan Çelik",adet:7},{isim:"Fatma Şahin",adet:6},{isim:"Ali Aydın",adet:5},{isim:"Zeynep Arslan",adet:4}
+    {isim:"Hakan Bölük",adet:27},{isim:"Yasin Baysal",adet:17},{isim:"Sercan Demirel",adet:7},
+    {isim:"Bilal Okuyucular",adet:6},{isim:"Osman Yabancı",adet:5}
   ],
   tesisKart:[
-    {tesis:"Gebze",adet:38},{tesis:"Balıkesir",adet:22},{tesis:"Kayseri",adet:17},{tesis:"Alfa Kimya",adet:12},{tesis:"Merkez",adet:8}
+    {tesis:"Lojistik Ürün Depoları",adet:33},{tesis:"Bakım Onarım",adet:29},{tesis:"Su Bazlı 2 Boyalar Ü.İ.",adet:27},
+    {tesis:"Su Bazlı 1 Boyalar Ü.İ.",adet:22},{tesis:"Lojistik Hammadde Deposu",adet:10},{tesis:"Polimer Ü.İ.",adet:9},
+    {tesis:"AR-GE",adet:7},{tesis:"Kuru Harçlar Ü.İ.",adet:6},{tesis:"Kalite Müdürlüğü",adet:4},
+    {tesis:"Mobilya Boyaları Ü.İ.",adet:4},{tesis:"EPS Ü.İ.",adet:2},{tesis:"Sentetik Ü.İ.",adet:1},{tesis:"Alt Yüklenici / Müteahhit",adet:1}
   ],
   kurul:[
-    {tarih:"2026-06-28",karar:"Yükleme rampasına korkuluk montajı yapılacak",durum:"Açık"},
-    {tarih:"2026-06-20",karar:"Forklift operatörlerine tazeleme eğitimi verilecek",durum:"Devam"},
-    {tarih:"2026-06-10",karar:"Depo yangın tüpleri kontrol edildi",durum:"Kapandı"},
-    {tarih:"2026-06-02",karar:"Acil çıkış tabelaları yenilendi",durum:"Kapandı"}
+    {tarih:"2026-06-18",ozet:"Mayıs'ta Gebze'yi etkileyen mevzuat değişikliği olmadı",durum:"Bilgilendirme"},
+    {tarih:"2026-06-18",ozet:"Mutfaktaki kayıp zamanlı kazanın kök neden analizi yapıldı",durum:"Bilgilendirme"},
+    {tarih:"2026-06-18",ozet:"17 kazada kimyasal maruziyet ve kas-iskelet zorlanması öne çıktı",durum:"Bilgilendirme"},
+    {tarih:"2026-06-18",ozet:"Kazaların bölüm dağılımı: Su Bazlı Üretim 6, Lojistik 4",durum:"Bilgilendirme"},
+    {tarih:"2026-06-18",ozet:"Saha denetiminde 10 emniyetsiz davranış, 8 emniyetsiz durum",durum:"Bilgilendirme"},
+    {tarih:"2026-06-18",ozet:"Kritik emniyetsiz davranışlar incelendi, denetimler sıkılaşacak",durum:"Bilgilendirme"},
+    {tarih:"2026-06-18",ozet:"Fens kapısı bypass'ı ve trafik görüş kısıtı ele alındı",durum:"Bilgilendirme"},
+    {tarih:"2026-06-18",ozet:"Minör dumanlanmalar için ekipman bakımları gözden geçirilecek",durum:"Bilgilendirme"},
+    {tarih:"2026-06-18",ozet:"11 açık karar; termini geçmiş 3 aksiyon kapatılacak",durum:"Bilgilendirme"},
+    {tarih:"2026-06-18",ozet:"Artan kazalara karşı İSG prosedürleri ve saha uygulamaları denetlenecek",durum:"Bilgilendirme"},
+    {tarih:"2026-06-18",ozet:"Kimyasal maruziyete karşı kök neden çalıştayı düzenlenecek",durum:"Karar"},
+    {tarih:"2026-06-18",ozet:"Mutfak ve yemekhanede 15 günde bir GEMBA saha turu",durum:"Karar"},
+    {tarih:"2026-06-18",ozet:"Plaka tanıma sistemi devreye alınacak, trafik senaryoları güncellenecek",durum:"Karar"},
+    {tarih:"2026-06-18",ozet:"4 adımlı tesis giriş standardı tüm BETEK'e yaygınlaştırılacak",durum:"Karar"},
+    {tarih:"2026-06-18",ozet:"Robot alanı ışın perdesi ve fens kapısı emniyeti test edilecek",durum:"Karar"},
+    {tarih:"2026-06-18",ozet:"Enerji altındaki denetimlerde endüstriyel endoskop kamera kullanılacak",durum:"Karar"},
+    {tarih:"2026-06-18",ozet:"Kimyasal sıçramaya karşı uzun kollu iş elbisesi değerlendiriliyor",durum:"Karar"},
+    {tarih:"2026-06-18",ozet:"S2/S3 sıvı dirençli iş ayakkabısı denemesi yapılacak",durum:"Karar"}
   ],
   kazalar:[
-    {tarih:"2026-02-11",tesis:"İdari İşler",tur:"Kayıp Zamanlı",kayip_gun:4,detay:"Düşme"},
-    {tarih:"2026-04-06",tesis:"Yatırımlar",tur:"Kayıp Zamanlı",kayip_gun:9,detay:"Sıkışma"}
+    {tarih:"2026-03-01",tesis:"Yatırımlar",tur:"Kayıp Zamanlı İş Kazası",kayip_gun:2,detay:"Ayağının transpalet altına sıkışması"},
+    {tarih:"2026-05-05",tesis:"İdari İşler (SOA)",tur:"Kayıp Zamanlı İş Kazası",kayip_gun:13,detay:"Ayağına yemek kazanı düşmesi"}
   ]
 };
 
@@ -275,6 +302,14 @@ function bySayiDesc(k){ return function(a,b){ return (b[k]||0)-(a[k]||0); }; }
 function byTarihDesc(a,b){ return (""+(b.tarih||"")<""+(a.tarih||""))?-1:((""+(b.tarih||"")>""+(a.tarih||""))?1:0); }
 function byTarihAsc(a,b){ return (""+(a.tarih||"")<""+(b.tarih||""))?-1:((""+(a.tarih||"")>""+(b.tarih||""))?1:0); }
 
+function kurulText(o){ return (o.ozet && (""+o.ozet)!=="") ? o.ozet : (o.karar||""); }
+function kurulHtml(arr, cls){
+  var s="", j;
+  for(j=0;j<arr.length && j<10;j++){
+    s+='<div class="kmadde '+cls+'"><div class="kn">'+(j+1)+'</div><div class="kt">'+esc(kurulText(arr[j]))+'</div></div>';
+  }
+  return s || '<div class="empty">Kayıt yok</div>';
+}
 function render(data){
   var a=data.ayarlar||{}, i;
   if(a.tesis_adi){ byId("tesisAdi").innerHTML=esc((a.tesis_adi+" İSG PANOSU").toUpperCase()); }
@@ -297,7 +332,7 @@ function render(data){
 
   var tk=(data.tesisKart||[]).slice();
   for(i=0;i<tk.length;i++){ tk[i].adet=parseInt(tk[i].adet,10)||0; }
-  tk.sort(bySayiDesc("adet")); tk=tk.slice(0,6);
+  tk.sort(bySayiDesc("adet")); tk=tk.slice(0,8);
   var mx=1; for(i=0;i<tk.length;i++){ if(tk[i].adet>mx) mx=tk[i].adet; }
   h="";
   for(i=0;i<tk.length;i++){
@@ -306,20 +341,25 @@ function render(data){
   }
   byId("tesisBars").innerHTML=h||'<div class="empty">Kayıt yok</div>';
 
-  var kr=(data.kurul||[]).slice(); kr.sort(byTarihDesc); kr=kr.slice(0,6);
-  h="";
-  for(i=0;i<kr.length;i++){
-    var dt=(""+(kr[i].tarih||"")).substring(5).replace("-",".");
-    h+='<div class="decision"><div class="dt">'+dt+'</div><div class="tx">'+esc(kr[i].karar||"")+'</div><div class="badge '+badgeClass(kr[i].durum)+'">'+esc(kr[i].durum||"Açık")+'</div></div>';
+  var allk=(data.kurul||[]).slice();
+  var kararlar=[], bilgi=[];
+  for(i=0;i<allk.length;i++){
+    if((""+(allk[i].durum||"")).toLowerCase().indexOf("karar")>=0){ kararlar.push(allk[i]); }
+    else { bilgi.push(allk[i]); }
   }
-  byId("kararlar").innerHTML=h||'<div class="empty">Kayıt yok</div>';
+  byId("kurulKarar").innerHTML=kurulHtml(kararlar,"");
+  byId("kurulBilgi").innerHTML=kurulHtml(bilgi,"bilgi");
+  var donem=a.kurul_donem||"";
+  if(!donem && allk.length){ var pm=(""+(allk[0].tarih||"")).split("-"); if(pm.length>=2){ var mmi=parseInt(pm[1],10)-1; if(mmi>=0&&mmi<12){ donem=AYLAR[mmi]+" "+pm[0]; } } }
+  byId("donemBilgi").innerHTML=donem;
+  byId("donemKarar").innerHTML=donem;
 
   byId("kazaYil").innerHTML=YIL;
   var allkz=(data.kazalar||[]), kz=[];
   for(i=0;i<allkz.length;i++){ if((""+(allkz[i].tarih||"")).indexOf(""+YIL)===0){ kz.push(allkz[i]); } }
   var kzk=0, toplamGun=0, birimMap={}, birimSay=0;
   for(i=0;i<kz.length;i++){
-    if((""+(kz[i].tur||"")).toLowerCase().indexOf("kayıp zaman")>=0){ kzk++; }
+    if((""+(kz[i].tur||"")).toLowerCase().indexOf("zaman")>=0){ kzk++; }
     toplamGun+=parseInt(kz[i].kayip_gun,10)||0;
     var tb=kz[i].tesis||"";
     if(tb && !birimMap[tb]){ birimMap[tb]=1; birimSay++; }
@@ -332,7 +372,7 @@ function render(data){
   for(i=0;i<ks.length;i++){
     var mi=ayIndex(ks[i].tarih); if(mi<0) mi=0;
     var gg=parseInt(ks[i].kayip_gun,10)||0;
-    h+='<div class="kcard"><div class="mon">'+AYLAR[mi]+'</div><div class="fac">'+esc(ks[i].tesis||"—")+'</div><div class="typ">'+esc(ks[i].tur||"Olay")+'</div><div class="day">'+gg+'<small>Kayıp Gün</small></div></div>';
+    h+='<div class="kcard"><div class="mon">'+AYLAR[mi]+'</div><div class="fac">'+esc(ks[i].tesis||"—")+'<small>'+esc(ks[i].detay||"")+'</small></div><div class="typ">'+esc(ks[i].tur||"Olay")+'</div><div class="day">'+gg+'<small>Kayıp Gün</small></div></div>';
   }
   byId("kazaCards").innerHTML=h||'<div class="empty">Bu yıl kayıtlı kaza yok — tüm tesisler temiz</div>';
   var hit={};
