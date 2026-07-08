@@ -4,174 +4,111 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>İSG Panosu</title>
-
 <!--
-  ============================================================
-  İSG DİJİTAL PANOSU  —  65" TV, tam ekran, otomatik dönen sayfalar
-  ============================================================
-  Google Sheets sekmeleri (birebir bu isim ve başlıklar):
-
-    "Ayarlar":  anahtar | deger
-       son_kaza_tarihi | 2026-04-06     (YYYY-AA-GG)
-       rekor_gun       | 210
-       tesis_adi       | BETEK
-
-    "SariKart": isim | adet             (kişi bazlı — her satır bir kişi)
-    "TesisKart":tesis | adet            (tesis bazlı — hangi tesis kaç yazdı)
-    "Kurul":    tarih | karar | durum   (durum: Açık / Devam / Kapandı)
-    "Kazalar":  tarih | tesis | tur | kayip_gun | detay
-                (tur: "Kayıp Zamanlı" / "Kayıp Günsüz" / "İlk Yardım")
-
-  Sheets'i "Bağlantıya sahip herkes -> Görüntüleyen" yap, SHEET ID'yi
-  aşağıya yapıştır. Boşsa DEMO çalışır.
-  ============================================================
+  İSG DİJİTAL PANOSU — ESKİ TV TARAYICI UYUMLU SÜRÜM
+  Google Sheets sekmeleri:
+    Ayarlar:  anahtar | deger   (son_kaza_tarihi / rekor_gun / tesis_adi)
+    SariKart: isim | adet
+    TesisKart:tesis | adet
+    Kurul:    tarih | karar | durum   (Açık/Devam/Kapandı)
+    Kazalar:  tarih | tesis | tur | kayip_gun | detay
+  SHEET_ID boşsa demo çalışır.
 -->
-
-<script>
-const CONFIG = {
-  SHEET_ID: "",
-  REFRESH_SANIYE: 300,       // veri tazeleme (5 dk) — istersen düşür
-  SAYFA_SANIYE: 12,          // her sayfa ekranda kaç saniye
-  YIL: 2026,                 // kaza sayfasının referans yılı
-  SEKME:{ ayarlar:"Ayarlar", sariKart:"SariKart", tesisKart:"TesisKart", kurul:"Kurul", kazalar:"Kazalar" }
-};
-</script>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#0F1417; --panel:#171E23; --panel2:#1E262C; --line:#2A343B;
-    --hi:#F5C400; --safe:#34C46A; --alarm:#FF5236; --blue:#7DB0FF;
-    --text:#EAEEF1; --muted:#8A97A0; --plate:#0B0F11;
-  }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  html,body{height:100%; overflow:hidden;}
-  body{background:var(--bg); color:var(--text);
-    font-family:"Inter",system-ui,sans-serif; -webkit-font-smoothing:antialiased;}
-  .stripe{background-image:repeating-linear-gradient(-45deg,#F5C400 0 16px,#0F1417 16px 32px);}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;overflow:hidden;}
+  body{background:#0F1417;color:#EAEEF1;font-family:"Inter",Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  .stripe{background-image:repeating-linear-gradient(-45deg,#F5C400 0,#F5C400 16px,#0F1417 16px,#0F1417 32px);}
+  .app{height:100vh;width:100vw;display:flex;flex-direction:column;overflow:hidden;background:#0F1417;}
 
-  .app{height:100vh; width:100vw; display:flex; flex-direction:column; overflow:hidden;}
+  .topbar{height:9vh;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 3vw;border-bottom:1px solid #2A343B;position:relative;}
+  .progress{position:absolute;left:0;bottom:-1px;height:3px;background:#F5C400;width:0;}
+  .brand{display:flex;align-items:center;}
+  .brand .tag{width:12px;height:5vh;border-radius:3px;margin-right:1vw;}
+  .brand h1{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3.4vh;letter-spacing:.06em;text-transform:uppercase;line-height:1;}
+  .brand small{display:block;color:#8A97A0;font-size:1.35vh;letter-spacing:.28em;text-transform:uppercase;margin-top:.4vh;}
+  .top-right{display:flex;align-items:center;}
+  .dots{display:flex;margin-right:2.4vw;}
+  .dots i{width:1vh;height:1vh;border-radius:50%;background:#2A343B;margin-left:.7vw;}
+  .dots i.on{background:#F5C400;width:3vh;border-radius:3px;}
+  .datebox{text-align:right;font-family:"Barlow Condensed",Arial,sans-serif;line-height:1.1;}
+  .datebox .d1{font-size:2.6vh;font-weight:700;}
+  .datebox .d2{color:#8A97A0;font-size:1.4vh;letter-spacing:.16em;text-transform:uppercase;margin-top:.3vh;}
 
-  .topbar{height:9vh; flex:0 0 auto; display:flex; align-items:center;
-    justify-content:space-between; padding:0 3vw; border-bottom:1px solid var(--line); position:relative;}
-  .topbar .progress{position:absolute; left:0; bottom:-1px; height:3px; background:var(--hi); width:0;}
-  .brand{display:flex; align-items:center; gap:1vw;}
-  .brand .tag{width:.9vw; min-width:12px; height:5vh; border-radius:3px;}
-  .brand h1{font-family:"Barlow Condensed",sans-serif; font-weight:700;
-    font-size:3.4vh; letter-spacing:.06em; text-transform:uppercase; line-height:1;}
-  .brand small{display:block; color:var(--muted); font-size:1.35vh;
-    letter-spacing:.28em; text-transform:uppercase; margin-top:.4vh;}
-  .top-right{display:flex; align-items:center; gap:2.4vw;}
-  .dots{display:flex; gap:.7vw;}
-  .dots i{width:1vh; height:1vh; border-radius:50%; background:var(--line); transition:all .3s;}
-  .dots i.on{background:var(--hi); width:3vh; border-radius:3px;}
-  .datebox{text-align:right; font-family:"Barlow Condensed",sans-serif; line-height:1.1;}
-  .datebox .d1{font-size:2.6vh; font-weight:700; letter-spacing:.02em;}
-  .datebox .d2{color:var(--muted); font-size:1.4vh; letter-spacing:.16em; text-transform:uppercase; margin-top:.3vh;}
+  .stage{flex:1 1 auto;position:relative;overflow:hidden;}
+  .page{position:absolute;top:0;left:0;right:0;bottom:0;padding:3.5vh 3vw;opacity:0;display:flex;flex-direction:column;}
+  .page.active{opacity:1;}
 
-  .stage{flex:1 1 auto; position:relative; overflow:hidden;}
-  .page{position:absolute; inset:0; padding:3.5vh 3vw; opacity:0; pointer-events:none;
-    transition:opacity .7s ease; display:flex; flex-direction:column;}
-  .page.active{opacity:1; pointer-events:auto;}
+  .ptitle{display:flex;align-items:center;margin-bottom:2.5vh;flex:0 0 auto;}
+  .ptitle .ico{width:10px;height:4.4vh;border-radius:3px;margin-right:1vw;}
+  .ptitle h2{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:4vh;letter-spacing:.06em;text-transform:uppercase;}
+  .ptitle .per{margin-left:auto;color:#8A97A0;font-size:2vh;letter-spacing:.16em;text-transform:uppercase;}
 
-  .ptitle{display:flex; align-items:center; gap:1vw; margin-bottom:2.5vh; flex:0 0 auto;}
-  .ptitle .ico{width:.7vw; min-width:10px; height:4.4vh; border-radius:3px;}
-  .ptitle h2{font-family:"Barlow Condensed",sans-serif; font-weight:700;
-    font-size:4vh; letter-spacing:.06em; text-transform:uppercase;}
-  .ptitle .per{margin-left:auto; color:var(--muted); font-size:2vh;
-    letter-spacing:.16em; text-transform:uppercase;}
+  .p-hero{align-items:center;justify-content:center;text-align:center;}
+  .p-hero .badge-safe{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3vh;letter-spacing:.3em;color:#34C46A;text-transform:uppercase;}
+  .p-hero .eyebrow{color:#8A97A0;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:600;font-size:2.6vh;letter-spacing:.34em;text-transform:uppercase;margin-top:.5vh;}
+  .plates{display:flex;margin:2.5vh 0 1.5vh;}
+  .plate{background:#0B0F11;border-radius:14px;min-width:16vh;padding:1.5vh 2vh;margin:0 .7vw;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:800;font-size:34vh;line-height:.9;color:#34C46A;text-shadow:0 0 34px rgba(52,196,106,.4);box-shadow:inset 0 -1vh 0 rgba(0,0,0,.45);}
+  .p-hero .barline{height:1.4vh;width:52vw;border-radius:3px;margin:2.5vh 0;}
+  .p-hero .meta{display:flex;color:#8A97A0;font-size:2.4vh;}
+  .p-hero .meta div{margin:0 2.5vw;}
+  .p-hero .meta b{color:#EAEEF1;font-weight:600;}
 
-  /* SAYFA 1 — kazasız gün */
-  .p-hero{align-items:center; justify-content:center; text-align:center;}
-  .p-hero .badge-safe{font-family:"Barlow Condensed",sans-serif; font-weight:700;
-    font-size:3vh; letter-spacing:.3em; color:var(--safe); text-transform:uppercase;}
-  .p-hero .eyebrow{color:var(--muted); font-family:"Barlow Condensed",sans-serif;
-    font-weight:600; font-size:2.6vh; letter-spacing:.34em; text-transform:uppercase; margin-top:.5vh;}
-  .plates{display:flex; gap:1.4vw; margin:2.5vh 0 1.5vh;}
-  .plate{background:var(--plate); border-radius:14px;
-    box-shadow:inset 0 -1vh 0 rgba(0,0,0,.45), inset 0 .7vh 0 rgba(255,255,255,.04);
-    min-width:16vh; padding:1.5vh 2vh; font-family:"Barlow Condensed",sans-serif;
-    font-weight:800; font-size:34vh; line-height:.9; color:var(--safe);
-    text-shadow:0 0 34px rgba(52,196,106,.4);}
-  .p-hero .barline{height:1.4vh; width:52vw; border-radius:3px; margin:2.5vh 0;}
-  .p-hero .meta{display:flex; gap:5vw; color:var(--muted); font-size:2.4vh;}
-  .p-hero .meta b{color:var(--text); font-weight:600;}
+  .split{flex-direction:row;}
+  .col{background:#171E23;border:1px solid #2A343B;border-radius:16px;padding:2.8vh 1.8vw;display:flex;flex-direction:column;overflow:hidden;}
+  .col.left{flex:1.15;margin-right:2.5vw;} .col.right{flex:1;}
+  .ch{display:flex;align-items:center;margin-bottom:2vh;flex:0 0 auto;}
+  .ch .card-ico{width:2.4vh;height:3.4vh;background:#F5C400;border-radius:4px;margin-right:.8vw;box-shadow:0 0 16px rgba(245,196,0,.45);}
+  .ch h3{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:2.8vh;letter-spacing:.06em;text-transform:uppercase;}
+  .ladder{flex:1;display:flex;flex-direction:column;justify-content:center;}
+  .rank{display:flex;align-items:center;padding:1.15vh .5vw;border-bottom:1px solid #2A343B;}
+  .rank .no{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3vh;color:#8A97A0;width:3.4vh;text-align:center;margin-right:1.2vw;}
+  .rank .nm{flex:1;font-size:2.6vh;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rank .ct{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3.4vh;color:#F5C400;display:flex;align-items:center;}
+  .rank .ct .k{width:1.8vh;height:2.6vh;background:#F5C400;border-radius:3px;margin-right:.6vw;}
+  .rank.lead .no{color:#F5C400;} .rank.lead .nm{font-weight:700;}
+  .fbars{flex:1;display:flex;flex-direction:column;justify-content:center;}
+  .fbar{margin:1vh 0;}
+  .fbar .fl{display:flex;justify-content:space-between;margin-bottom:.7vh;}
+  .fbar .fn{font-size:2.4vh;font-weight:500;}
+  .fbar .fv{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:2.8vh;color:#F5C400;}
+  .fbar .track{height:1.8vh;background:#1E262C;border-radius:10px;overflow:hidden;}
+  .fbar .fill{height:100%;background:#F5C400;border-radius:10px;}
 
-  /* SAYFA 2 — sarı kart (kişi + tesis) */
-  .split{flex-direction:row; gap:2.5vw;}
-  .col{background:var(--panel); border:1px solid var(--line); border-radius:16px;
-    padding:2.8vh 1.8vw; display:flex; flex-direction:column; overflow:hidden;}
-  .col .ch{display:flex; align-items:center; gap:.8vw; margin-bottom:2vh; flex:0 0 auto;}
-  .col .ch .card-ico{width:2.4vh; height:3.4vh; background:var(--hi); border-radius:4px;
-    box-shadow:0 0 16px rgba(245,196,0,.45); transform:rotate(6deg);}
-  .col .ch h3{font-family:"Barlow Condensed",sans-serif; font-weight:700; font-size:2.8vh;
-    letter-spacing:.06em; text-transform:uppercase;}
-  .ladder{flex:1; display:flex; flex-direction:column; justify-content:center;}
-  .rank{display:flex; align-items:center; gap:1.2vw; padding:1.15vh .5vw; border-bottom:1px solid var(--line);}
-  .rank:last-child{border-bottom:none;}
-  .rank .no{font-family:"Barlow Condensed",sans-serif; font-weight:700; font-size:3vh;
-    color:var(--muted); width:3.4vh; text-align:center;}
-  .rank .nm{flex:1; font-size:2.6vh; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .rank .ct{font-family:"Barlow Condensed",sans-serif; font-weight:700; font-size:3.4vh;
-    color:var(--hi); display:flex; align-items:center; gap:.6vw;}
-  .rank .ct .k{width:1.8vh; height:2.6vh; background:var(--hi); border-radius:3px;}
-  .rank.lead{background:linear-gradient(90deg,rgba(245,196,0,.1),transparent); border-radius:8px; border-bottom:1px solid transparent;}
-  .rank.lead .no{color:var(--hi);} .rank.lead .nm{font-weight:700;}
-  /* tesis barları */
-  .fbars{flex:1; display:flex; flex-direction:column; justify-content:center; gap:2vh;}
-  .fbar .fl{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:.7vh;}
-  .fbar .fn{font-size:2.4vh; font-weight:500;}
-  .fbar .fv{font-family:"Barlow Condensed",sans-serif; font-weight:700; font-size:2.8vh; color:var(--hi);}
-  .fbar .track{height:1.8vh; background:var(--panel2); border-radius:10px; overflow:hidden;}
-  .fbar .fill{height:100%; background:linear-gradient(90deg,#F5C400,#E0A800); border-radius:10px; min-width:2%;}
+  .decwrap{flex:1;display:flex;flex-direction:column;justify-content:center;}
+  .decision{display:flex;align-items:center;padding:2vh .5vw;border-bottom:1px solid #2A343B;}
+  .decision .dt{color:#8A97A0;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:600;font-size:2.6vh;white-space:nowrap;width:9vh;margin-right:1.4vw;}
+  .decision .tx{flex:1;font-size:2.9vh;line-height:1.2;margin-right:1.4vw;}
+  .badge{font-size:1.8vh;font-weight:600;padding:.5vh 1.2vw;border-radius:22px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;}
+  .b-acik{background:rgba(245,196,0,.16);color:#F5C400;}
+  .b-devam{background:rgba(125,176,255,.16);color:#7DB0FF;}
+  .b-kapandi{background:rgba(52,196,106,.16);color:#34C46A;}
 
-  /* SAYFA 3 — kurul */
-  .decwrap{flex:1; display:flex; flex-direction:column; justify-content:center;}
-  .decision{display:flex; align-items:center; gap:1.4vw; padding:2vh .5vw; border-bottom:1px solid var(--line);}
-  .decision:last-child{border-bottom:none;}
-  .decision .dt{color:var(--muted); font-family:"Barlow Condensed",sans-serif; font-weight:600;
-    font-size:2.6vh; white-space:nowrap; width:9vh;}
-  .decision .tx{flex:1; font-size:2.9vh; line-height:1.2;}
-  .badge{font-size:1.8vh; font-weight:600; padding:.5vh 1.2vw; border-radius:22px;
-    letter-spacing:.06em; text-transform:uppercase; white-space:nowrap;}
-  .b-acik{background:rgba(245,196,0,.16); color:var(--hi);}
-  .b-devam{background:rgba(125,176,255,.16); color:var(--blue);}
-  .b-kapandi{background:rgba(52,196,106,.16); color:var(--safe);}
+  .kpis{display:flex;flex:0 0 auto;margin-bottom:3vh;}
+  .kpi{flex:1;background:#171E23;border:1px solid #2A343B;border-radius:14px;padding:2.4vh 1.6vw;margin-right:2vw;}
+  .kpi.last{margin-right:0;}
+  .kpi .n{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:800;font-size:8vh;line-height:.85;}
+  .kpi.red .n{color:#FF5236;} .kpi.amber .n{color:#F5C400;} .kpi.neutral .n{color:#EAEEF1;}
+  .kpi .l{color:#8A97A0;font-size:1.9vh;letter-spacing:.08em;text-transform:uppercase;margin-top:1vh;}
+  .kcards{flex:1;display:flex;flex-direction:column;justify-content:center;}
+  .kcard{display:flex;align-items:center;background:#171E23;border:1px solid #2A343B;border-left:4px solid #FF5236;border-radius:12px;padding:2.2vh 1.8vw;margin:.9vh 0;}
+  .kcard .mon{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3.4vh;color:#8A97A0;width:11vh;text-transform:uppercase;}
+  .kcard .fac{flex:1;font-size:3vh;font-weight:600;}
+  .kcard .typ{font-size:1.9vh;font-weight:600;padding:.6vh 1.2vw;border-radius:22px;background:rgba(255,82,54,.14);color:#FF5236;letter-spacing:.05em;text-transform:uppercase;margin:0 1.4vw;}
+  .kcard .day{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3vh;color:#EAEEF1;width:12vh;text-align:right;}
+  .kcard .day small{display:block;font-family:"Inter",Arial,sans-serif;font-weight:400;font-size:1.5vh;color:#8A97A0;text-transform:uppercase;letter-spacing:.1em;}
+  .months{display:flex;flex:0 0 auto;margin-top:2.5vh;}
+  .months .m{flex:1;text-align:center;padding:1vh 0;border-radius:8px;background:#171E23;border:1px solid #2A343B;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:600;font-size:1.8vh;color:#8A97A0;margin:0 .3vw;}
+  .months .m.hit{background:rgba(255,82,54,.16);border-color:rgba(255,82,54,.4);color:#FF5236;}
 
-  /* SAYFA 4 — kaza */
-  .kpis{display:flex; gap:2vw; flex:0 0 auto; margin-bottom:3vh;}
-  .kpi{flex:1; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:2.4vh 1.6vw;}
-  .kpi .n{font-family:"Barlow Condensed",sans-serif; font-weight:800; font-size:8vh; line-height:.85;}
-  .kpi.red .n{color:var(--alarm);} .kpi.amber .n{color:var(--hi);} .kpi.neutral .n{color:var(--text);}
-  .kpi .l{color:var(--muted); font-size:1.9vh; letter-spacing:.08em; text-transform:uppercase; margin-top:1vh;}
-  .kcards{flex:1; display:flex; flex-direction:column; justify-content:center; gap:1.8vh;}
-  .kcard{display:flex; align-items:center; gap:1.6vw; background:var(--panel);
-    border:1px solid var(--line); border-left:4px solid var(--alarm); border-radius:12px; padding:2.2vh 1.8vw;}
-  .kcard .mon{font-family:"Barlow Condensed",sans-serif; font-weight:700; font-size:3.4vh;
-    color:var(--muted); width:11vh; text-transform:uppercase;}
-  .kcard .fac{flex:1; font-size:3vh; font-weight:600;}
-  .kcard .typ{font-size:1.9vh; font-weight:600; padding:.6vh 1.2vw; border-radius:22px;
-    background:rgba(255,82,54,.14); color:var(--alarm); letter-spacing:.05em; text-transform:uppercase;}
-  .kcard .day{font-family:"Barlow Condensed",sans-serif; font-weight:700; font-size:3vh; color:var(--text); width:12vh; text-align:right;}
-  .kcard .day small{display:block; font-family:"Inter"; font-weight:400; font-size:1.5vh; color:var(--muted); text-transform:uppercase; letter-spacing:.1em;}
-  .months{display:flex; gap:.6vw; flex:0 0 auto; margin-top:2.5vh;}
-  .months .m{flex:1; text-align:center; padding:1vh 0; border-radius:8px; background:var(--panel);
-    border:1px solid var(--line); font-family:"Barlow Condensed",sans-serif; font-weight:600;
-    font-size:1.8vh; color:var(--muted); letter-spacing:.05em;}
-  .months .m.hit{background:rgba(255,82,54,.16); border-color:rgba(255,82,54,.4); color:var(--alarm);}
-
-  .empty{color:var(--muted); font-size:2.4vh; text-align:center; padding:4vh 0;}
-  .foot{position:fixed; bottom:.6vh; right:1.2vw; color:#3E4A52; font-size:1.15vh; letter-spacing:.1em;}
-  .foot.err{color:var(--alarm);}
-  @media (prefers-reduced-motion:reduce){.page{transition:none;} .progress{transition:none;}}
+  .empty{color:#8A97A0;font-size:2.4vh;text-align:center;padding:4vh 0;}
+  .foot{position:fixed;bottom:.6vh;right:1.2vw;color:#3E4A52;font-size:1.15vh;letter-spacing:.1em;}
 </style>
 </head>
-<body>
+<body style="background:#0F1417;">
 <div class="app">
-  <header class="topbar">
+  <div class="topbar">
     <div class="brand">
       <div class="tag stripe"></div>
       <div><h1 id="tesisAdi">İSG PANOSU</h1><small>İş Sağlığı ve Güvenliği · Canlı Pano</small></div>
@@ -181,11 +118,10 @@ const CONFIG = {
       <div class="datebox"><div class="d1" id="d1">—</div><div class="d2" id="d2">—</div></div>
     </div>
     <div class="progress" id="progress"></div>
-  </header>
+  </div>
 
   <div class="stage">
-    <!-- 1: KAZASIZ GÜN -->
-    <section class="page p-hero active">
+    <div class="page p-hero active">
       <div class="badge-safe" id="safeBadge">GÜVENDEYİZ</div>
       <div class="eyebrow">Kazasız Gün</div>
       <div class="plates" id="plates"></div>
@@ -194,55 +130,57 @@ const CONFIG = {
         <div>Rekor: <b id="rekor">—</b> gün</div>
         <div>Son kaza: <b id="sonKaza">—</b></div>
       </div>
-    </section>
+    </div>
 
-    <!-- 2: SARI KART (kişi + tesis) -->
-    <section class="page split">
-      <div class="col" style="flex:1.15">
+    <div class="page split">
+      <div class="col left">
         <div class="ch"><div class="card-ico"></div><h3>Sarı Kart · Kişi Liderliği</h3></div>
         <div class="ladder" id="liderlik"></div>
       </div>
-      <div class="col" style="flex:1">
+      <div class="col right">
         <div class="ch"><div class="card-ico"></div><h3>Sarı Kart · Tesis Dağılımı</h3></div>
         <div class="fbars" id="tesisBars"></div>
       </div>
-    </section>
+    </div>
 
-    <!-- 3: KURUL KARARLARI -->
-    <section class="page">
-      <div class="ptitle"><div class="ico" style="background:var(--hi)"></div><h2>Kurul Kararları</h2></div>
+    <div class="page">
+      <div class="ptitle"><div class="ico" style="background:#F5C400;"></div><h2>Kurul Kararları</h2></div>
       <div class="decwrap" id="kararlar"></div>
-    </section>
+    </div>
 
-    <!-- 4: KAZA TAKİBİ -->
-    <section class="page">
-      <div class="ptitle"><div class="ico" style="background:var(--alarm)"></div><h2>Kaza Takibi</h2>
-        <div class="per" id="kazaYil">2026</div></div>
+    <div class="page">
+      <div class="ptitle"><div class="ico" style="background:#FF5236;"></div><h2>Kaza Takibi</h2><div class="per" id="kazaYil">2026</div></div>
       <div class="kpis">
         <div class="kpi red"><div class="n" id="kpiKzk">0</div><div class="l">Kayıp Zamanlı Kaza</div></div>
         <div class="kpi amber"><div class="n" id="kpiGun">0</div><div class="l">Toplam Kayıp Gün</div></div>
-        <div class="kpi neutral"><div class="n" id="kpiBirim">0</div><div class="l">Etkilenen Birim</div></div>
+        <div class="kpi neutral last"><div class="n" id="kpiBirim">0</div><div class="l">Etkilenen Birim</div></div>
       </div>
       <div class="kcards" id="kazaCards"></div>
       <div class="months" id="months"></div>
-    </section>
+    </div>
   </div>
 </div>
 <div class="foot" id="foot">demo mod</div>
 
 <script>
-const AYLAR=["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
-const AYKISA=["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+var SHEET_ID = "";
+var REFRESH_SANIYE = 300;
+var SAYFA_SANIYE = 12;
+var YIL = 2026;
+var SEKME = { ayarlar:"Ayarlar", sariKart:"SariKart", tesisKart:"TesisKart", kurul:"Kurul", kazalar:"Kazalar" };
 
-const DEMO={
+var AYLAR = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+var AYKISA = ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+var GUNLER = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
+
+var DEMO = {
   ayarlar:{ son_kaza_tarihi:"2026-04-06", rekor_gun:"210", tesis_adi:"BETEK" },
   sariKart:[
     {isim:"Ahmet Yılmaz",adet:14},{isim:"Mehmet Demir",adet:11},{isim:"Ayşe Kaya",adet:9},
     {isim:"Hasan Çelik",adet:7},{isim:"Fatma Şahin",adet:6},{isim:"Ali Aydın",adet:5},{isim:"Zeynep Arslan",adet:4}
   ],
   tesisKart:[
-    {tesis:"Gebze",adet:38},{tesis:"Balıkesir",adet:22},{tesis:"Kayseri",adet:17},
-    {tesis:"Alfa Kimya",adet:12},{tesis:"Merkez",adet:8}
+    {tesis:"Gebze",adet:38},{tesis:"Balıkesir",adet:22},{tesis:"Kayseri",adet:17},{tesis:"Alfa Kimya",adet:12},{tesis:"Merkez",adet:8}
   ],
   kurul:[
     {tarih:"2026-06-28",karar:"Yükleme rampasına korkuluk montajı yapılacak",durum:"Açık"},
@@ -256,107 +194,221 @@ const DEMO={
   ]
 };
 
-function parseCSV(t){const R=[];let v="",q=false,row=[];
-  for(let i=0;i<t.length;i++){const c=t[i];
-    if(q){if(c==='"'){if(t[i+1]==='"'){v+='"';i++;}else q=false;}else v+=c;}
-    else{if(c==='"')q=true;else if(c===','){row.push(v);v="";}
-      else if(c==='\n'){row.push(v);R.push(row);row=[];v="";}else if(c==='\r'){}else v+=c;}}
-  if(v.length||row.length){row.push(v);R.push(row);}return R;}
-function toObjects(rows){if(!rows.length)return[];
-  const h=rows[0].map(x=>x.trim().toLowerCase());
-  return rows.slice(1).filter(r=>r.some(x=>x.trim()!=="")).map(r=>{const o={};h.forEach((k,i)=>o[k]=(r[i]||"").trim());return o;});}
-async function fetchSheet(tab){
-  const u=`https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
-  const res=await fetch(u,{cache:"no-store"});if(!res.ok)throw new Error(tab);
-  return toObjects(parseCSV(await res.text()));}
+function byId(id){ return document.getElementById(id); }
 
-function gunFarki(iso){const d=new Date(iso+"T00:00:00");if(isNaN(d))return 0;
-  return Math.max(0,Math.floor((new Date().setHours(0,0,0,0)-d)/86400000));}
-function trTarih(iso){const d=new Date(iso+"T00:00:00");if(isNaN(d))return iso||"—";
-  return d.toLocaleDateString("tr-TR",{day:"2-digit",month:"long",year:"numeric"});}
-function badgeClass(d){const t=(d||"").toLowerCase();
-  if(t.includes("kapan"))return"b-kapandi";if(t.includes("devam"))return"b-devam";return"b-acik";}
+function parseCSV(t){
+  var R=[], row=[], v="", q=false, i, c;
+  for(i=0;i<t.length;i++){
+    c=t.charAt(i);
+    if(q){
+      if(c==='"'){ if(t.charAt(i+1)==='"'){ v+='"'; i++; } else { q=false; } }
+      else { v+=c; }
+    } else {
+      if(c==='"'){ q=true; }
+      else if(c===','){ row.push(v); v=""; }
+      else if(c==='\n'){ row.push(v); R.push(row); row=[]; v=""; }
+      else if(c==='\r'){}
+      else { v+=c; }
+    }
+  }
+  if(v.length||row.length){ row.push(v); R.push(row); }
+  return R;
+}
+function toObjects(rows){
+  if(!rows.length) return [];
+  var head=[], i, out=[];
+  for(i=0;i<rows[0].length;i++){ head.push((""+rows[0][i]).replace(/^\s+|\s+$/g,"").toLowerCase()); }
+  for(i=1;i<rows.length;i++){
+    var r=rows[i], any=false, j, o={};
+    for(j=0;j<r.length;j++){ if((""+r[j]).replace(/^\s+|\s+$/g,"")!==""){ any=true; } }
+    if(!any) continue;
+    for(j=0;j<head.length;j++){ o[head[j]]=(""+(r[j]||"")).replace(/^\s+|\s+$/g,""); }
+    out.push(o);
+  }
+  return out;
+}
+function xhrGet(url, cb){
+  var x=new XMLHttpRequest();
+  x.open("GET", url, true);
+  x.onreadystatechange=function(){
+    if(x.readyState===4){
+      if(x.status>=200 && x.status<300){ cb(null, x.responseText); }
+      else { cb(new Error("http "+x.status), null); }
+    }
+  };
+  x.send();
+}
+function sheetUrl(tab){
+  return "https://docs.google.com/spreadsheets/d/"+SHEET_ID+"/gviz/tq?tqx=out:csv&sheet="+encodeURIComponent(tab);
+}
+
+function gunFarki(iso){
+  var p=(""+iso).split("-");
+  if(p.length<3) return 0;
+  var d=new Date(parseInt(p[0],10), parseInt(p[1],10)-1, parseInt(p[2],10));
+  if(isNaN(d.getTime())) return 0;
+  var now=new Date(); now.setHours(0,0,0,0);
+  var diff=Math.floor((now.getTime()-d.getTime())/86400000);
+  return diff>0?diff:0;
+}
+function ayIndex(iso){
+  var p=(""+iso).split("-");
+  if(p.length<2) return -1;
+  var m=parseInt(p[1],10)-1;
+  return (m>=0&&m<12)?m:-1;
+}
+function trTarihUzun(iso){
+  var p=(""+iso).split("-");
+  if(p.length<3) return iso||"—";
+  var g=parseInt(p[2],10), m=parseInt(p[1],10)-1, y=p[0];
+  if(isNaN(g)||m<0||m>11) return iso;
+  return (g<10?"0"+g:g)+" "+AYLAR[m]+" "+y;
+}
+function badgeClass(d){
+  var t=(""+d).toLowerCase();
+  if(t.indexOf("kapan")>=0) return "b-kapandi";
+  if(t.indexOf("devam")>=0) return "b-devam";
+  return "b-acik";
+}
+function esc(s){ return (""+s); }
+function bySayiDesc(k){ return function(a,b){ return (b[k]||0)-(a[k]||0); }; }
+function byTarihDesc(a,b){ return (""+(b.tarih||"")<""+(a.tarih||""))?-1:((""+(b.tarih||"")>""+(a.tarih||""))?1:0); }
+function byTarihAsc(a,b){ return (""+(a.tarih||"")<""+(b.tarih||""))?-1:((""+(a.tarih||"")>""+(b.tarih||""))?1:0); }
 
 function render(data){
-  const a=data.ayarlar||{};
-  if(a.tesis_adi)document.getElementById("tesisAdi").textContent=(a.tesis_adi+" İSG PANOSU").toUpperCase();
-  const gun=gunFarki(a.son_kaza_tarihi);
-  document.getElementById("plates").innerHTML=String(gun).split("").map(d=>`<div class="plate">${d}</div>`).join("");
-  document.getElementById("rekor").textContent=a.rekor_gun||"—";
-  document.getElementById("sonKaza").textContent=trTarih(a.son_kaza_tarihi);
-  document.getElementById("safeBadge").textContent=(a.rekor_gun&&gun>=+a.rekor_gun)?"YENİ REKOR!":"GÜVENDEYİZ";
+  var a=data.ayarlar||{}, i;
+  if(a.tesis_adi){ byId("tesisAdi").innerHTML=esc((a.tesis_adi+" İSG PANOSU").toUpperCase()); }
+  var gun=gunFarki(a.son_kaza_tarihi);
+  var ps="", gs=""+gun;
+  for(i=0;i<gs.length;i++){ ps+='<div class="plate">'+gs.charAt(i)+'</div>'; }
+  byId("plates").innerHTML=ps;
+  byId("rekor").innerHTML=esc(a.rekor_gun||"—");
+  byId("sonKaza").innerHTML=esc(trTarihUzun(a.son_kaza_tarihi));
+  byId("safeBadge").innerHTML=(a.rekor_gun && gun>=parseInt(a.rekor_gun,10))?"YENİ REKOR!":"GÜVENDEYİZ";
 
-  // kişi
-  const sk=[...(data.sariKart||[])].map(r=>({isim:r.isim||"",adet:+(r.adet||0)})).sort((x,y)=>y.adet-x.adet).slice(0,7);
-  document.getElementById("liderlik").innerHTML=sk.map((r,i)=>`
-    <div class="rank ${i===0?'lead':''}"><div class="no">${i+1}</div><div class="nm">${r.isim}</div>
-      <div class="ct"><span class="k"></span>${r.adet}</div></div>`).join("")||`<div class="empty">Kayıt yok</div>`;
+  var sk=(data.sariKart||[]).slice();
+  for(i=0;i<sk.length;i++){ sk[i].adet=parseInt(sk[i].adet,10)||0; }
+  sk.sort(bySayiDesc("adet")); sk=sk.slice(0,7);
+  var h="";
+  for(i=0;i<sk.length;i++){
+    h+='<div class="rank'+(i===0?' lead':'')+'"><div class="no">'+(i+1)+'</div><div class="nm">'+esc(sk[i].isim||"")+'</div><div class="ct"><span class="k"></span>'+sk[i].adet+'</div></div>';
+  }
+  byId("liderlik").innerHTML=h||'<div class="empty">Kayıt yok</div>';
 
-  // tesis barları
-  const tk=[...(data.tesisKart||[])].map(r=>({tesis:r.tesis||"",adet:+(r.adet||0)})).sort((x,y)=>y.adet-x.adet).slice(0,6);
-  const mx=Math.max(1,...tk.map(r=>r.adet));
-  document.getElementById("tesisBars").innerHTML=tk.map(r=>`
-    <div class="fbar"><div class="fl"><span class="fn">${r.tesis}</span><span class="fv">${r.adet}</span></div>
-      <div class="track"><div class="fill" style="width:${Math.round(r.adet/mx*100)}%"></div></div></div>`).join("")||`<div class="empty">Kayıt yok</div>`;
+  var tk=(data.tesisKart||[]).slice();
+  for(i=0;i<tk.length;i++){ tk[i].adet=parseInt(tk[i].adet,10)||0; }
+  tk.sort(bySayiDesc("adet")); tk=tk.slice(0,6);
+  var mx=1; for(i=0;i<tk.length;i++){ if(tk[i].adet>mx) mx=tk[i].adet; }
+  h="";
+  for(i=0;i<tk.length;i++){
+    var w=Math.round(tk[i].adet/mx*100);
+    h+='<div class="fbar"><div class="fl"><span class="fn">'+esc(tk[i].tesis||"")+'</span><span class="fv">'+tk[i].adet+'</span></div><div class="track"><div class="fill" style="width:'+w+'%"></div></div></div>';
+  }
+  byId("tesisBars").innerHTML=h||'<div class="empty">Kayıt yok</div>';
 
-  // kurul
-  const kr=[...(data.kurul||[])].sort((x,y)=>(y.tarih||"").localeCompare(x.tarih||"")).slice(0,6);
-  document.getElementById("kararlar").innerHTML=kr.map(r=>`
-    <div class="decision"><div class="dt">${(r.tarih||"").slice(5).replace("-",".")}</div>
-      <div class="tx">${r.karar||""}</div><div class="badge ${badgeClass(r.durum)}">${r.durum||"Açık"}</div></div>`).join("")||`<div class="empty">Kayıt yok</div>`;
+  var kr=(data.kurul||[]).slice(); kr.sort(byTarihDesc); kr=kr.slice(0,6);
+  h="";
+  for(i=0;i<kr.length;i++){
+    var dt=(""+(kr[i].tarih||"")).substring(5).replace("-",".");
+    h+='<div class="decision"><div class="dt">'+dt+'</div><div class="tx">'+esc(kr[i].karar||"")+'</div><div class="badge '+badgeClass(kr[i].durum)+'">'+esc(kr[i].durum||"Açık")+'</div></div>';
+  }
+  byId("kararlar").innerHTML=h||'<div class="empty">Kayıt yok</div>';
 
-  // kaza
-  document.getElementById("kazaYil").textContent=CONFIG.YIL;
-  const kz=(data.kazalar||[]).filter(r=>(r.tarih||"").startsWith(String(CONFIG.YIL)));
-  const kzk=kz.filter(r=>(r.tur||"").toLowerCase().includes("kayıp zaman"));
-  const toplamGun=kz.reduce((s,r)=>s+(+r.kayip_gun||0),0);
-  const birimler=new Set(kz.map(r=>r.tesis).filter(Boolean));
-  document.getElementById("kpiKzk").textContent=kzk.length;
-  document.getElementById("kpiGun").textContent=toplamGun;
-  document.getElementById("kpiBirim").textContent=birimler.size;
-  const kzSorted=[...kz].sort((x,y)=>(x.tarih||"").localeCompare(y.tarih||""));
-  document.getElementById("kazaCards").innerHTML=kzSorted.map(r=>{
-    const m=new Date(r.tarih+"T00:00:00"); const mi=isNaN(m)?0:m.getMonth();
-    return `<div class="kcard"><div class="mon">${AYLAR[mi]}</div><div class="fac">${r.tesis||"—"}</div>
-      <div class="typ">${r.tur||"Olay"}</div><div class="day">${(+r.kayip_gun||0)}<small>Kayıp Gün</small></div></div>`;
-  }).join("")||`<div class="empty">Bu yıl kayıtlı kaza yok — tüm tesisler temiz</div>`;
-  const hitM=new Set(kz.map(r=>{const m=new Date(r.tarih+"T00:00:00");return isNaN(m)?-1:m.getMonth();}));
-  document.getElementById("months").innerHTML=AYKISA.map((m,i)=>`<div class="m ${hitM.has(i)?'hit':''}">${m}</div>`).join("");
+  byId("kazaYil").innerHTML=YIL;
+  var allkz=(data.kazalar||[]), kz=[];
+  for(i=0;i<allkz.length;i++){ if((""+(allkz[i].tarih||"")).indexOf(""+YIL)===0){ kz.push(allkz[i]); } }
+  var kzk=0, toplamGun=0, birimMap={}, birimSay=0;
+  for(i=0;i<kz.length;i++){
+    if((""+(kz[i].tur||"")).toLowerCase().indexOf("kayıp zaman")>=0){ kzk++; }
+    toplamGun+=parseInt(kz[i].kayip_gun,10)||0;
+    var tb=kz[i].tesis||"";
+    if(tb && !birimMap[tb]){ birimMap[tb]=1; birimSay++; }
+  }
+  byId("kpiKzk").innerHTML=kzk;
+  byId("kpiGun").innerHTML=toplamGun;
+  byId("kpiBirim").innerHTML=birimSay;
+  var ks=kz.slice(); ks.sort(byTarihAsc);
+  h="";
+  for(i=0;i<ks.length;i++){
+    var mi=ayIndex(ks[i].tarih); if(mi<0) mi=0;
+    var gg=parseInt(ks[i].kayip_gun,10)||0;
+    h+='<div class="kcard"><div class="mon">'+AYLAR[mi]+'</div><div class="fac">'+esc(ks[i].tesis||"—")+'</div><div class="typ">'+esc(ks[i].tur||"Olay")+'</div><div class="day">'+gg+'<small>Kayıp Gün</small></div></div>';
+  }
+  byId("kazaCards").innerHTML=h||'<div class="empty">Bu yıl kayıtlı kaza yok — tüm tesisler temiz</div>';
+  var hit={};
+  for(i=0;i<kz.length;i++){ var mm=ayIndex(kz[i].tarih); if(mm>=0){ hit[mm]=1; } }
+  h="";
+  for(i=0;i<12;i++){ h+='<div class="m'+(hit[i]?' hit':'')+'">'+AYKISA[i]+'</div>'; }
+  byId("months").innerHTML=h;
 }
 
-async function load(){
-  const foot=document.getElementById("foot");
-  if(!CONFIG.SHEET_ID){render(DEMO);foot.className="foot";foot.textContent="demo mod · Sheet ID girilmedi";return;}
-  try{
-    const [ay,sk,tk,ku,kz]=await Promise.all([
-      fetchSheet(CONFIG.SEKME.ayarlar),fetchSheet(CONFIG.SEKME.sariKart),fetchSheet(CONFIG.SEKME.tesisKart),
-      fetchSheet(CONFIG.SEKME.kurul),fetchSheet(CONFIG.SEKME.kazalar)]);
-    const ayarlar={};ay.forEach(r=>{if(r.anahtar)ayarlar[r.anahtar]=r.deger;});
-    render({ayarlar,sariKart:sk,tesisKart:tk,kurul:ku,kazalar:kz});
-    foot.className="foot";foot.textContent="veri güncellendi";
-  }catch(e){render(DEMO);foot.className="foot err";foot.textContent="bağlantı hatası · demo gösteriliyor";}
+function load(){
+  var foot=byId("foot");
+  if(!SHEET_ID){ render(DEMO); foot.innerHTML="demo mod · Sheet ID girilmedi"; return; }
+  var tabs=[SEKME.ayarlar,SEKME.sariKart,SEKME.tesisKart,SEKME.kurul,SEKME.kazalar];
+  var results={}, done=0, failed=false, k;
+  function after(){
+    done++;
+    if(done<tabs.length) return;
+    if(failed){ render(DEMO); foot.innerHTML="bağlantı hatası · demo gösteriliyor"; return; }
+    var ayarlar={}, ay=results[SEKME.ayarlar]||[], i;
+    for(i=0;i<ay.length;i++){ if(ay[i].anahtar){ ayarlar[ay[i].anahtar]=ay[i].deger; } }
+    render({ ayarlar:ayarlar, sariKart:results[SEKME.sariKart]||[], tesisKart:results[SEKME.tesisKart]||[], kurul:results[SEKME.kurul]||[], kazalar:results[SEKME.kazalar]||[] });
+    foot.innerHTML="veri güncellendi";
+  }
+  for(k=0;k<tabs.length;k++){
+    (function(tab){
+      xhrGet(sheetUrl(tab), function(err, txt){
+        if(err){ failed=true; } else { try{ results[tab]=toObjects(parseCSV(txt)); }catch(e){ failed=true; } }
+        after();
+      });
+    })(tabs[k]);
+  }
 }
 
-// tarih (saat yok)
-function setDate(){const n=new Date();
-  document.getElementById("d1").textContent=n.toLocaleDateString("tr-TR",{day:"2-digit",month:"long"});
-  document.getElementById("d2").textContent=n.toLocaleDateString("tr-TR",{weekday:"long",year:"numeric"});}
+function setDate(){
+  var n=new Date();
+  byId("d1").innerHTML=(n.getDate()<10?"0"+n.getDate():n.getDate())+" "+AYLAR[n.getMonth()];
+  byId("d2").innerHTML=GUNLER[n.getDay()]+" "+n.getFullYear();
+}
 
-// sayfa döngüsü + noktalar
-const pages=[...document.querySelectorAll(".page")];
-const dotsEl=document.getElementById("dots");
-dotsEl.innerHTML=pages.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join("");
-const dots=[...dotsEl.children];
-let idx=0;
-const prog=document.getElementById("progress");
-function restartProgress(){prog.style.transition="none";prog.style.width="0";void prog.offsetWidth;
-  prog.style.transition=`width ${CONFIG.SAYFA_SANIYE}s linear`;prog.style.width="100%";}
-function goto(i){pages[idx].classList.remove("active");dots[idx].classList.remove("on");
-  idx=(i+pages.length)%pages.length;pages[idx].classList.add("active");dots[idx].classList.add("on");restartProgress();}
+var pages, dots, idx=0, prog;
+function initPages(){
+  var i, ndc=document.querySelectorAll(".page");
+  pages=[];
+  for(i=0;i<ndc.length;i++){ pages.push(ndc[i]); }
+  var dh="";
+  for(i=0;i<pages.length;i++){ dh+='<i'+(i===0?' class="on"':'')+'></i>'; }
+  byId("dots").innerHTML=dh;
+  var di=byId("dots").getElementsByTagName("i");
+  dots=[];
+  for(i=0;i<di.length;i++){ dots.push(di[i]); }
+  prog=byId("progress");
+}
+function restartProgress(){
+  prog.style.transition="none"; prog.style.width="0";
+  if(prog.offsetWidth){}
+  setTimeout(function(){
+    prog.style.transition="width "+SAYFA_SANIYE+"s linear";
+    prog.style.width="100%";
+  },30);
+}
+function goto(i){
+  pages[idx].className=pages[idx].className.replace(" active","");
+  dots[idx].className="";
+  idx=(i+pages.length)%pages.length;
+  pages[idx].className+=" active";
+  dots[idx].className="on";
+  restartProgress();
+}
 
-setDate();setInterval(setDate,60000);
-load();setInterval(load,CONFIG.REFRESH_SANIYE*1000);
-restartProgress();setInterval(()=>goto(idx+1),CONFIG.SAYFA_SANIYE*1000);
+setDate();
+setInterval(setDate,60000);
+load();
+setInterval(load, REFRESH_SANIYE*1000);
+initPages();
+restartProgress();
+setInterval(function(){ goto(idx+1); }, SAYFA_SANIYE*1000);
 </script>
 </body>
 </html>
