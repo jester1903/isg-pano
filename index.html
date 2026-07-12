@@ -218,7 +218,7 @@
 
     <div class="page split">
       <div class="col left">
-        <div class="ch"><div class="card-ico"></div><h3>Ayın Liderleri</h3></div>
+        <div class="ch"><div class="card-ico"></div><h3 id="ayLider">Ayın Liderleri</h3></div>
         <div class="podium" id="podium"></div>
         <div class="ch subch"><div class="card-ico"></div><h3>Genel Liste · İlk 5</h3></div>
         <div class="ladder" id="liderlik"></div>
@@ -296,21 +296,24 @@
 <div class="foot" id="foot">demo mod</div>
 
 <script>
-var SHEET_ID = "1kojzXc6kA7UKNm-9MKF3cmIyb3TCsGbyfa2Qa2YcHdY";
+var SHEET_ID = "1LvAWduebolUylKrcKdlSQfkMmrHsgbs6MQH1JTKUBmU";
 var REFRESH_SANIYE = 300;
 var SAYFA_SANIYE = 12;
 var YIL = 2026;
-var SEKME = { ayarlar:"Ayarlar", sariKart:"SariKart", tesisKart:"TesisKart", kurul:"Kurul", kazalar:"Kazalar", aksiyon:"Aksiyon", tesisGun:"TesisGun", egitim:"Egitim", toolbox:"Toolbox", kazaTur:"KazaTur", kazaTesis:"KazaTesis", betekGun:"BetekGun" };
+var SEKME = { ayarlar:"Ayarlar", sariKart:"SariKart", tesisKart:"TesisKart", kurul:"Kurul", kazalar:"Kazalar", aksiyon:"Aksiyon", tesisGun:"TesisGun", egitim:"Egitim", toolbox:"Toolbox", kazaTur:"KazaTur", kazaTesis:"KazaTesis", betekGun:"BetekGun", sariKartAy:"SariKartAy" };
 
 var AYLAR = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
 var AYKISA = ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
 var GUNLER = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
 
 var DEMO = {
-  ayarlar:{ son_kaza_tarihi:"2026-05-05", rekor_gun:"300", tesis_adi:"GEBZE TESİSİ", kurul_donem:"Haziran 2026", egitim_son_tarih:"30.08.2026", egitim_goster:"evet", toolbox_ay:"Haziran", kso_orani:"2.4", kso_kaza:"2", kso_hedef:"0,39", slogan:"GÜVENLİĞİ KATMAN KATMAN İNŞA EDİYORUZ" },
+  ayarlar:{ son_kaza_tarihi:"2026-05-05", rekor_gun:"300", tesis_adi:"GEBZE TESİSİ", kurul_donem:"Haziran 2026", egitim_son_tarih:"30.08.2026", egitim_goster:"evet", toolbox_ay:"Haziran", kso_orani:"2.4", kso_kaza:"2", kso_hedef:"0,39", slogan:"GÜVENLİĞİ KATMAN KATMAN İNŞA EDİYORUZ", sarikart_ay:"Haziran" },
   sariKart:[
-    {isim:"Hakan Bölük",adet:27},{isim:"Yasin Baysal",adet:17},{isim:"Sercan Demirel",adet:7},
-    {isim:"Bilal Okuyucular",adet:6},{isim:"Osman Yabancı",adet:5}
+    {isim:"Hakan Bölük",adet:27},{isim:"Yasin Baysal",adet:16},{isim:"Bilal Okuyucular",adet:6},
+    {isim:"Osman Yabancı",adet:5},{isim:"Onur Karaağaç",adet:4}
+  ],
+  sariKartAy:[
+    {isim:"Yasin Baysal",adet:6},{isim:"Hakan Bölük",adet:4},{isim:"Bilal Okuyucular",adet:2}
   ],
   tesisKart:[
     {tesis:"Lojistik Ürün Depoları",adet:33},{tesis:"Bakım Onarım",adet:29},{tesis:"Su Bazlı 2 Boyalar Ü.İ.",adet:27},
@@ -541,25 +544,30 @@ function render(data){
   var slogan=a.slogan||"GÜVENLİĞİ KATMAN KATMAN İNŞA EDİYORUZ";
   byId("safeBadge").innerHTML=(a.rekor_gun && gun>=parseInt(a.rekor_gun,10))?"YENİ REKOR!":slogan;
 
+  function medal(i){ var c=i===0?"m1":i===1?"m2":i===2?"m3":i===3?"m4":"m5"; return '<div class="medal '+c+'">'+(i+1)+'</div>'; }
+  // GENEL İLK 5 (kümülatif)
   var sk=[], raw=data.sariKart||[], ad;
   for(i=0;i<raw.length;i++){ ad=parseInt(raw[i].adet,10); if(!isNaN(ad) && raw[i].isim){ sk.push({isim:raw[i].isim,adet:ad}); } }
   sk.sort(bySayiDesc("adet")); sk=sk.slice(0,5);
-  function medal(i){ var c=i===0?"m1":i===1?"m2":i===2?"m3":i===3?"m4":"m5"; return '<div class="medal '+c+'">'+(i+1)+'</div>'; }
-  // podyum: [2., 1., 3.]
-  var podOrder=[1,0,2], ph="";
-  for(i=0;i<podOrder.length;i++){
-    var pi=podOrder[i];
-    if(sk[pi]){
-      var podcls=pi===0?"first":(pi===1?"second":"third");
-      ph+='<div class="pod '+podcls+'">'+medal(pi)+'<div class="pnm">'+esc(sk[pi].isim)+'</div><div class="pct">'+sk[pi].adet+'</div></div>';
-    }
-  }
-  byId("podium").innerHTML=ph||'<div class="empty">Kayıt yok</div>';
   var h="";
   for(i=0;i<sk.length;i++){
     h+='<div class="rank'+(i===0?' lead':'')+'">'+medal(i)+'<div class="nm">'+esc(sk[i].isim||"")+'</div><div class="ct"><span class="k"></span>'+sk[i].adet+'</div></div>';
   }
   byId("liderlik").innerHTML=h||'<div class="empty">Kayıt yok</div>';
+  // AYIN LİDERLERİ (bu ay, ilk 3) — podyum
+  var skAy=[], rawAy=data.sariKartAy||[];
+  for(i=0;i<rawAy.length;i++){ ad=parseInt(rawAy[i].adet,10); if(!isNaN(ad) && rawAy[i].isim){ skAy.push({isim:rawAy[i].isim,adet:ad}); } }
+  skAy.sort(bySayiDesc("adet")); skAy=skAy.slice(0,3);
+  var podOrder=[1,0,2], ph="";
+  for(i=0;i<podOrder.length;i++){
+    var pi=podOrder[i];
+    if(skAy[pi]){
+      var podcls=pi===0?"first":(pi===1?"second":"third");
+      ph+='<div class="pod '+podcls+'">'+medal(pi)+'<div class="pnm">'+esc(skAy[pi].isim)+'</div><div class="pct">'+skAy[pi].adet+'</div></div>';
+    }
+  }
+  byId("podium").innerHTML=ph||'<div class="empty">Kayıt yok</div>';
+  byId("ayLider").innerHTML=a.sarikart_ay?("Ayın Liderleri · "+a.sarikart_ay):"Ayın Liderleri";
 
   var tk=[], rawt=data.tesisKart||[], adt;
   for(i=0;i<rawt.length;i++){ adt=parseInt(rawt[i].adet,10); if(!isNaN(adt) && rawt[i].tesis){ tk.push({tesis:rawt[i].tesis,adet:adt}); } }
@@ -741,7 +749,7 @@ function render(data){
 function load(){
   var foot=byId("foot");
   if(!SHEET_ID){ render(DEMO); foot.innerHTML="demo mod · Sheet ID girilmedi"; return; }
-  var tabs=[SEKME.ayarlar,SEKME.sariKart,SEKME.tesisKart,SEKME.kurul,SEKME.kazalar,SEKME.aksiyon,SEKME.tesisGun,SEKME.egitim,SEKME.toolbox,SEKME.kazaTur,SEKME.kazaTesis,SEKME.betekGun];
+  var tabs=[SEKME.ayarlar,SEKME.sariKart,SEKME.tesisKart,SEKME.kurul,SEKME.kazalar,SEKME.aksiyon,SEKME.tesisGun,SEKME.egitim,SEKME.toolbox,SEKME.kazaTur,SEKME.kazaTesis,SEKME.betekGun,SEKME.sariKartAy];
   var results={}, done=0, okCount=0, k;
   function after(){
     done++;
@@ -749,7 +757,7 @@ function load(){
     if(okCount===0){ render(DEMO); foot.innerHTML="bağlantı hatası · demo gösteriliyor"; return; }
     var ayarlar={}, ay=results[SEKME.ayarlar]||[], i;
     for(i=0;i<ay.length;i++){ if(ay[i].anahtar){ ayarlar[ay[i].anahtar]=ay[i].deger; } }
-    render({ ayarlar:ayarlar, sariKart:results[SEKME.sariKart]||[], tesisKart:results[SEKME.tesisKart]||[], kurul:results[SEKME.kurul]||[], kazalar:results[SEKME.kazalar]||[], aksiyon:results[SEKME.aksiyon]||[], tesisGun:results[SEKME.tesisGun]||[], egitim:results[SEKME.egitim]||[], toolbox:results[SEKME.toolbox]||[], kazaTur:results[SEKME.kazaTur]||[], kazaTesis:results[SEKME.kazaTesis]||[], betekGun:results[SEKME.betekGun]||[] });
+    render({ ayarlar:ayarlar, sariKart:results[SEKME.sariKart]||[], tesisKart:results[SEKME.tesisKart]||[], kurul:results[SEKME.kurul]||[], kazalar:results[SEKME.kazalar]||[], aksiyon:results[SEKME.aksiyon]||[], tesisGun:results[SEKME.tesisGun]||[], egitim:results[SEKME.egitim]||[], toolbox:results[SEKME.toolbox]||[], kazaTur:results[SEKME.kazaTur]||[], kazaTesis:results[SEKME.kazaTesis]||[], betekGun:results[SEKME.betekGun]||[], sariKartAy:results[SEKME.sariKartAy]||[] });
     foot.innerHTML="veri güncellendi";
   }
   for(k=0;k<tabs.length;k++){
