@@ -153,8 +153,8 @@
   .tgsplit{flex:1;display:flex;flex-direction:row;}
   .agacwrap{flex:1;display:flex;flex-direction:row;align-items:center;}
   .agaccv{flex:0 0 auto;}
-  .agaccv canvas{height:70vh;width:auto;display:block;}
-  .agacinfo{flex:1;padding-left:4vw;}
+  .agaccv canvas{height:75vh;width:auto;display:block;}
+  .agacinfo{flex:1;padding-left:2.5vw;}
   .agacbig{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:800;font-size:17vh;color:#34C46A;line-height:.82;}
   .agacunit{color:#8A97A0;font-size:2.4vh;letter-spacing:.22em;text-transform:uppercase;margin-top:.6vh;}
   .agacbar{height:2.4vh;background:#1E262C;border-radius:12px;overflow:hidden;margin:3.4vh 0 1.8vh;max-width:34vw;}
@@ -245,7 +245,7 @@
     <div class="page">
       <div class="ptitle"><div class="ico" style="background:#34C46A;"></div><h2>Ramak Kala Ağacı</h2><div class="per" id="agacPer"></div></div>
       <div class="agacwrap">
-        <div class="agaccv"><canvas id="agacCanvas" width="820" height="880"></canvas></div>
+        <div class="agaccv"><canvas id="agacCanvas" width="950" height="880"></canvas></div>
         <div class="agacinfo">
           <div class="agacbig" id="agacSayi">0</div>
           <div class="agacunit">yaprak</div>
@@ -688,10 +688,9 @@ function render(data){
   var agacCap=parseInt(a.agac_kapasite,10);
   if(isNaN(agacCap) || agacCap<1){ agacCap=400; }
   var agacPc=Math.round(agacTop/agacCap*100); if(agacPc>100){ agacPc=100; }
-  var kalan=agacCap-agacTop; if(kalan<0){ kalan=0; }
   byId("agacSayi").innerHTML=agacTop;
   byId("agacFill").style.width=agacPc+"%";
-  byId("agacMeta").innerHTML="Hedef "+agacCap+" yaprak · %"+agacPc+" yeşerdi · kalan "+kalan;
+  byId("agacMeta").innerHTML="Hedef "+agacCap+" yaprak · %"+agacPc+" yeşerdi";
   byId("agacPer").innerHTML="Sarı Kart Bildirimleri · "+YIL;
   var agacAy=parseInt(a.agac_ay,10);
   if(isNaN(agacAy) || agacAy<0){ agacAy=0; }
