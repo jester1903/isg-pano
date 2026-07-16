@@ -151,6 +151,19 @@
   .empty{color:#8A97A0;font-size:2.4vh;text-align:center;padding:4vh 0;}
   .tgwrap{flex:1;display:flex;flex-direction:column;justify-content:center;}
   .tgsplit{flex:1;display:flex;flex-direction:row;}
+  .agacwrap{flex:1;display:flex;flex-direction:row;align-items:center;}
+  .agaccv{flex:0 0 auto;}
+  .agaccv canvas{height:70vh;width:auto;display:block;}
+  .agacinfo{flex:1;padding-left:4vw;}
+  .agacbig{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:800;font-size:17vh;color:#34C46A;line-height:.82;}
+  .agacunit{color:#8A97A0;font-size:2.4vh;letter-spacing:.22em;text-transform:uppercase;margin-top:.6vh;}
+  .agacbar{height:2.4vh;background:#1E262C;border-radius:12px;overflow:hidden;margin:3.4vh 0 1.8vh;max-width:34vw;}
+  .agacfill{height:100%;background:#34C46A;border-radius:12px;}
+  .agacmeta{color:#8A97A0;font-size:2.1vh;}
+  .agacay{display:inline-block;margin-top:2.4vh;background:rgba(134,239,172,.13);border:1px solid rgba(134,239,172,.42);color:#86EFAC;border-radius:26px;padding:1vh 1.7vw;font-size:2.1vh;font-weight:700;letter-spacing:.02em;}
+  .agacay:empty{display:none;}
+  .agacdot{display:inline-block;width:1.4vh;height:1.4vh;border-radius:50%;background:#86EFAC;margin-right:.8vw;vertical-align:middle;}
+  .agacslogan{margin-top:5vh;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3.4vh;line-height:1.25;color:#EAEEF1;letter-spacing:.03em;text-transform:uppercase;border-left:5px solid #34C46A;padding-left:1.6vw;}
   .tgrow{display:flex;align-items:center;padding:.8vh .5vw;border-bottom:1px solid #2A343B;}
   .tgrow .tgn{font-size:2.3vh;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto;}
   .tgrow .tglead{flex:1;border-bottom:2px dotted #2A343B;margin:0 1.5vw;height:1.4vh;min-width:2vw;}
@@ -226,6 +239,21 @@
       <div class="col right">
         <div class="ch"><div class="card-ico"></div><h3>Sarı Kart · Tesis Dağılımı</h3></div>
         <div class="fbars" id="tesisBars"></div>
+      </div>
+    </div>
+
+    <div class="page">
+      <div class="ptitle"><div class="ico" style="background:#34C46A;"></div><h2>Ramak Kala Ağacı</h2><div class="per" id="agacPer"></div></div>
+      <div class="agacwrap">
+        <div class="agaccv"><canvas id="agacCanvas" width="820" height="880"></canvas></div>
+        <div class="agacinfo">
+          <div class="agacbig" id="agacSayi">0</div>
+          <div class="agacunit">yaprak</div>
+          <div class="agacbar"><div class="agacfill" id="agacFill"></div></div>
+          <div class="agacmeta" id="agacMeta">—</div>
+          <div class="agacay" id="agacAy"></div>
+          <div class="agacslogan">Her bildirim bir yaprak.<br>Ağacımızı birlikte yeşertiyoruz.</div>
+        </div>
       </div>
     </div>
 
@@ -307,7 +335,7 @@ var AYKISA = ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas
 var GUNLER = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
 
 var DEMO = {
-  ayarlar:{ son_kaza_tarihi:"2026-05-05", rekor_gun:"300", tesis_adi:"GEBZE TESİSİ", kurul_donem:"Haziran 2026", egitim_son_tarih:"30.08.2026", egitim_goster:"evet", toolbox_ay:"Haziran", kso_orani:"2.4", kso_kaza:"2", kso_hedef:"0,39", slogan:"GÜVENLİĞİ KATMAN KATMAN İNŞA EDİYORUZ", sarikart_ay:"Haziran" },
+  ayarlar:{ son_kaza_tarihi:"2026-05-05", rekor_gun:"300", tesis_adi:"GEBZE TESİSİ", kurul_donem:"Haziran 2026", egitim_son_tarih:"30.08.2026", egitim_goster:"evet", toolbox_ay:"Haziran", kso_orani:"2.4", kso_kaza:"2", kso_hedef:"0,39", slogan:"GÜVENLİĞİ KATMAN KATMAN İNŞA EDİYORUZ", sarikart_ay:"Haziran", agac_toplam:"193", agac_kapasite:"400", agac_ay:"17" },
   sariKart:[
     {isim:"Hakan Bölük",adet:27},{isim:"Yasin Baysal",adet:16},{isim:"Bilal Okuyucular",adet:6},
     {isim:"Osman Yabancı",adet:5},{isim:"Onur Karaağaç",adet:4}
@@ -485,6 +513,76 @@ function gunSayisi(s){
   var diff=Math.floor((now.getTime()-d.getTime())/86400000);
   return diff>0?diff:0;
 }
+// Ramak Kala Ağacı — sabit (rastgelelik tohumlu, her çizimde aynı görünür)
+function agacRnd(i){ var x=Math.sin(i*127.1+311.7)*43758.5453; return x-Math.floor(x); }
+function agacYaprak(ctx,x,y,r,ang,col){
+  ctx.save(); ctx.translate(x,y); ctx.rotate(ang);
+  ctx.fillStyle=col;
+  ctx.beginPath();
+  ctx.moveTo(0,-r);
+  ctx.quadraticCurveTo(r*0.78,-r*0.12,0,r);
+  ctx.quadraticCurveTo(-r*0.78,-r*0.12,0,-r);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+function drawAgac(total,cap,ayAdet){
+  var cv=byId("agacCanvas");
+  if(!cv || !cv.getContext){ return; }
+  var ctx=cv.getContext("2d");
+  if(!ctx){ return; }
+  var W=cv.width, H=cv.height, i;
+  ctx.clearRect(0,0,W,H);
+
+  // zemin (ellipse() eski TV'de yok — scale+arc ile)
+  ctx.save();
+  ctx.translate(W/2,H*0.90); ctx.scale(1,0.13);
+  ctx.fillStyle="#173523";
+  ctx.beginPath(); ctx.arc(0,0,W*0.40,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+
+  // gövde
+  ctx.fillStyle="#5A3010";
+  ctx.beginPath();
+  ctx.moveTo(W/2-30,H*0.90);
+  ctx.quadraticCurveTo(W/2-34,H*0.68,W/2-15,H*0.54);
+  ctx.lineTo(W/2+15,H*0.54);
+  ctx.quadraticCurveTo(W/2+34,H*0.68,W/2+30,H*0.90);
+  ctx.closePath(); ctx.fill();
+
+  // dallar
+  var br=[[W/2,H*0.62,W/2-150,H*0.42],[W/2,H*0.57,W/2+140,H*0.39],[W/2,H*0.55,W/2,H*0.24]];
+  ctx.strokeStyle="#5A3010"; ctx.lineCap="round";
+  for(i=0;i<br.length;i++){
+    ctx.lineWidth=15-i*3;
+    ctx.beginPath();
+    ctx.moveTo(br[i][0],br[i][1]);
+    ctx.quadraticCurveTo((br[i][0]+br[i][2])/2,(br[i][1]+br[i][3])/2,br[i][2],br[i][3]);
+    ctx.stroke();
+  }
+
+  // yapraklar — altın açı spirali
+  var cx=W/2, cy=H*0.44, rx=W*0.40, ry=H*0.34;
+  var GA=2.399963, dolu=Math.round(total);
+  if(dolu>cap){ dolu=cap; }
+  var ay=Math.round(ayAdet)||0;
+  if(ay>dolu){ ay=dolu; }
+  var ayBas=dolu-ay;
+  var tonlar=["#34C46A","#2FA85C","#4ADE80","#22C55E"];
+  var ayTon=["#A7F3B0","#86EFAC"];
+  for(i=0;i<cap;i++){
+    var t=i/cap, rad=Math.sqrt(t)*0.95, ang=i*GA;
+    var x=cx+Math.cos(ang)*rx*rad;
+    var y=cy+Math.sin(ang)*ry*rad*0.85-ry*0.10;
+    var lr=11+agacRnd(i)*5;
+    var la=ang+agacRnd(i+900)*0.6;
+    if(i<dolu){
+      var col=(i>=ayBas)?ayTon[i%2]:tonlar[i%4];
+      agacYaprak(ctx,x,y,lr,la,col);
+    }
+    else { agacYaprak(ctx,x,y,lr*0.85,la,"rgba(255,255,255,0.05)"); }
+  }
+}
+
 function trKisa(s){
   var d=parseTR(s); if(!d) return s||"—";
   var g=d.getDate(), m=d.getMonth()+1, y=d.getFullYear();
@@ -579,6 +677,26 @@ function render(data){
     h+='<div class="fbar"><div class="fl"><span class="fn">'+esc(tk[i].tesis||"")+'</span><span class="fv">'+tk[i].adet+'</span></div><div class="track"><div class="fill" style="width:'+w+'%"></div></div></div>';
   }
   byId("tesisBars").innerHTML=h||'<div class="empty">Kayıt yok</div>';
+
+  // Ramak Kala Ağacı — toplam: Ayarlar!agac_toplam, yoksa TesisKart toplamı
+  var agacTop=parseInt(a.agac_toplam,10);
+  if(isNaN(agacTop)){
+    agacTop=0;
+    var tkr=data.tesisKart||[];
+    for(i=0;i<tkr.length;i++){ var tn=parseInt(tkr[i].adet,10); if(!isNaN(tn)){ agacTop+=tn; } }
+  }
+  var agacCap=parseInt(a.agac_kapasite,10);
+  if(isNaN(agacCap) || agacCap<1){ agacCap=400; }
+  var agacPc=Math.round(agacTop/agacCap*100); if(agacPc>100){ agacPc=100; }
+  var kalan=agacCap-agacTop; if(kalan<0){ kalan=0; }
+  byId("agacSayi").innerHTML=agacTop;
+  byId("agacFill").style.width=agacPc+"%";
+  byId("agacMeta").innerHTML="Hedef "+agacCap+" yaprak · %"+agacPc+" yeşerdi · kalan "+kalan;
+  byId("agacPer").innerHTML="Sarı Kart Bildirimleri · "+YIL;
+  var agacAy=parseInt(a.agac_ay,10);
+  if(isNaN(agacAy) || agacAy<0){ agacAy=0; }
+  byId("agacAy").innerHTML=agacAy>0?('<span class="agacdot"></span>Bu ay yeşeren: +'+agacAy+' yaprak'+(a.sarikart_ay?(" · "+esc(a.sarikart_ay)):"")):"";
+  drawAgac(agacTop,agacCap,agacAy);
 
   var allk=(data.kurul||[]).slice();
   var kararlar=[], bilgi=[];
