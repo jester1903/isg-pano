@@ -907,7 +907,7 @@ function load(){
 function setDate(){
   var n=new Date();
   byId("d1").innerHTML=(n.getDate()<10?"0"+n.getDate():n.getDate())+" "+AYLAR[n.getMonth()];
-  byId("d2").innerHTML=GUNLER[n.getDay()]+" "+n.getFullYear();
+  byId("d2").innerHTML=GUNLER[n.getDay()];
 }
 
 // Hava durumu + İSG uyarıları (Open-Meteo, anahtarsız)
