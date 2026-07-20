@@ -35,6 +35,20 @@
   .datebox{text-align:right;font-family:"Barlow Condensed",Arial,sans-serif;line-height:1.1;}
   .datebox .d1{font-size:2.6vh;font-weight:700;}
   .datebox .d2{color:#8A97A0;font-size:1.4vh;letter-spacing:.16em;text-transform:uppercase;margin-top:.3vh;}
+  .wxbox{text-align:right;font-family:"Barlow Condensed",Arial,sans-serif;line-height:1.1;margin-right:2vw;padding-right:2vw;border-right:1px solid #2A343B;}
+  .wxbox .wxtemp{font-size:2.6vh;font-weight:700;color:#EAEEF1;}
+  .wxbox .wxsub{color:#8A97A0;font-size:1.4vh;letter-spacing:.14em;text-transform:uppercase;margin-top:.3vh;}
+  .wxalert{flex:0 0 auto;display:flex;align-items:center;justify-content:center;padding:1.1vh 3vw;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:2.3vh;letter-spacing:.03em;text-transform:uppercase;border-bottom:1px solid #2A343B;}
+  .wxalert .wxi{width:1.5vh;height:1.5vh;border-radius:50%;margin-right:1.2vw;flex:0 0 auto;}
+  .wxalert.hot{background:rgba(255,82,54,.14);color:#FF8A6B;}
+  .wxalert.hot .wxi{background:#FF5236;}
+  .wxalert.cold{background:rgba(125,176,255,.14);color:#9DC3FF;}
+  .wxalert.cold .wxi{background:#7DB0FF;}
+  .wxalert.wind{background:rgba(245,196,0,.14);color:#F5C400;}
+  .wxalert.wind .wxi{background:#F5C400;}
+  .wxalert.hum{background:rgba(52,196,106,.14);color:#5FD98A;}
+  .wxalert.hum .wxi{background:#34C46A;}
+  .wxalert .sep{margin:0 1.6vw;opacity:.4;}
 
   .stage{flex:1 1 auto;position:relative;overflow:hidden;}
   .page{position:absolute;top:0;left:0;right:0;bottom:0;padding:3.5vh 3vw;opacity:0;display:flex;flex-direction:column;}
@@ -212,10 +226,13 @@
     </div>
     <div class="top-right">
       <div class="dots" id="dots"></div>
+      <div class="wxbox" id="wxbox" style="display:none;"><div class="wxtemp" id="wxTemp">—</div><div class="wxsub" id="wxSub">Gebze</div></div>
       <div class="datebox"><div class="d1" id="d1">—</div><div class="d2" id="d2">—</div></div>
     </div>
     <div class="progress" id="progress"></div>
   </div>
+
+  <div class="wxalert" id="wxAlert" style="display:none;"></div>
 
   <div class="stage">
     <div class="page p-hero active">
@@ -893,6 +910,41 @@ function setDate(){
   byId("d2").innerHTML=GUNLER[n.getDay()]+" "+n.getFullYear();
 }
 
+// Hava durumu + İSG uyarıları (Open-Meteo, anahtarsız)
+var WX_LAT=40.80, WX_LON=29.43;
+function havaUyari(t,nem,ruz){
+  var al=[];
+  if(ruz>=35){ al.push({c:"wind",m:"Kuvvetli rüzgâr — yüksekte çalışma ve yük indirme/kaldırma operasyonlarını durdurun"}); }
+  if(t>=32){ al.push({c:"hot",m:"Hava sıcak — sıvı tüketimine ve molalara dikkat edin"}); }
+  if(t<=4){ al.push({c:"cold",m:"Soğuk — zeminde buzlanma riskine karşı dikkatli olun"}); }
+  if(nem>=75){ al.push({c:"hum",m:"Nem yüksek — ısı stresine karşı sıvı alımını artırın"}); }
+  return al;
+}
+function havaCek(){
+  var url="https://api.open-meteo.com/v1/forecast?latitude="+WX_LAT+"&longitude="+WX_LON+"&current=temperature_2m,relative_humidity_2m,wind_speed_10m&wind_speed_unit=kmh";
+  xhrGet(url, function(err, txt){
+    if(err){ return; }
+    var d; try{ d=JSON.parse(txt); }catch(e){ return; }
+    if(!d || !d.current){ return; }
+    var t=Math.round(d.current.temperature_2m);
+    var nem=Math.round(d.current.relative_humidity_2m);
+    var ruz=Math.round(d.current.wind_speed_10m);
+    byId("wxTemp").innerHTML=t+"°C";
+    byId("wxSub").innerHTML="GEBZE";
+    byId("wxbox").style.display="";
+    var al=havaUyari(t,nem,ruz), el=byId("wxAlert");
+    if(al.length){
+      var msgs="", j;
+      for(j=0;j<al.length && j<3;j++){ msgs+=(j?'<span class="sep">·</span>':"")+esc(al[j].m); }
+      el.className="wxalert "+al[0].c;
+      el.innerHTML='<span class="wxi"></span>'+msgs;
+      el.style.display="";
+    } else {
+      el.style.display="none"; el.innerHTML="";
+    }
+  });
+}
+
 var pages, dots, idx=0, prog, egitimVisible=true;
 function initPages(){
   var i, ndc=document.querySelectorAll(".page");
@@ -929,6 +981,8 @@ function goto(i){
 
 setDate();
 setInterval(setDate,60000);
+havaCek();
+setInterval(havaCek,600000);
 load();
 setInterval(load, REFRESH_SANIYE*1000);
 initPages();
