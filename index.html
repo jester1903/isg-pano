@@ -181,6 +181,12 @@
   .agacay:empty{display:none;}
   .agacdot{display:inline-block;width:1.4vh;height:1.4vh;border-radius:50%;background:#86EFAC;margin-right:.8vw;vertical-align:middle;}
   .agacslogan{margin-top:5vh;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3.4vh;line-height:1.25;color:#EAEEF1;letter-spacing:.03em;text-transform:uppercase;border-left:5px solid #34C46A;padding-left:1.6vw;}
+  .gorwrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0;}
+  .gorimg{flex:0 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;}
+  .gorimg img{max-height:58vh;max-width:86vw;width:auto;height:auto;border-radius:14px;display:block;border:1px solid #2A343B;}
+  .gorcap{text-align:center;margin-top:2.6vh;max-width:82vw;flex:0 0 auto;}
+  .gortesis{display:inline-block;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3.2vh;color:#F5C400;letter-spacing:.05em;text-transform:uppercase;border-bottom:2px solid rgba(245,196,0,.4);padding-bottom:.6vh;}
+  .goraciklama{font-size:2.5vh;line-height:1.45;color:#DfE5EA;margin-top:1.8vh;}
   .tgrow{display:flex;align-items:center;padding:.8vh .5vw;border-bottom:1px solid #2A343B;}
   .tgrow .tgn{font-size:2.3vh;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto;}
   .tgrow .tglead{flex:1;border-bottom:2px dotted #2A343B;margin:0 1.5vw;height:1.4vh;min-width:2vw;}
@@ -346,13 +352,18 @@ var SHEET_ID = "1LvAWduebolUylKrcKdlSQfkMmrHsgbs6MQH1JTKUBmU";
 var REFRESH_SANIYE = 300;
 var SAYFA_SANIYE = 12;
 var YIL = 2026;
-var SEKME = { ayarlar:"Ayarlar", sariKart:"SariKart", tesisKart:"TesisKart", kurul:"Kurul", kazalar:"Kazalar", aksiyon:"Aksiyon", tesisGun:"TesisGun", egitim:"Egitim", toolbox:"Toolbox", kazaTur:"KazaTur", kazaTesis:"KazaTesis", betekGun:"BetekGun", sariKartAy:"SariKartAy" };
+var SEKME = { ayarlar:"Ayarlar", sariKart:"SariKart", tesisKart:"TesisKart", kurul:"Kurul", kazalar:"Kazalar", aksiyon:"Aksiyon", tesisGun:"TesisGun", egitim:"Egitim", toolbox:"Toolbox", kazaTur:"KazaTur", kazaTesis:"KazaTesis", betekGun:"BetekGun", sariKartAy:"SariKartAy", gorseller:"Gorseller" };
 
 var AYLAR = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
 var AYKISA = ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
 var GUNLER = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
 
 var DEMO = {
+  gorseller:[
+    {gorsel:"ornek1.jpg",tesis:"Su Bazlı Üretim İşletmesi",aciklama:"Dökülen kimyasalın anında temizlenmemesi kayma ve zemin kirliliği riski oluşturur. Doğru davranış: dökülmeyi gördüğünüz anda çevreyi işaretleyip uygun emici malzemeyle temizleyin, amirinize bildirin. Görmezden gelmek değil, sahiplenmek güvenli kültürün temelidir."},
+    {gorsel:"ornek2.jpg",tesis:"Lojistik Depoları",aciklama:"Forklift geçiş güzergâhında yaya yürümesi ciddi çarpışma riski taşır. Doğru davranış: sarı yaya yollarını kullanın, forklift operatörüyle göz teması kurmadan geçmeyin. Acelesi olan iş değil, güvenli tamamlanan iştir."},
+    {gorsel:"ornek3.jpg",tesis:"Bakım-Onarım",aciklama:"Yüksekte çalışmada emniyet kemerinin bağlanmaması düşme riskini doğrudan artırır. Doğru davranış: 1,5 metre üzerindeki tüm çalışmalarda tam vücut kemerini uygun ankraj noktasına bağlayın. Kısa süreli iş bile olsa istisna yoktur."}
+  ],
   ayarlar:{ son_kaza_tarihi:"2026-05-05", rekor_gun:"300", tesis_adi:"GEBZE TESİSİ", kurul_donem:"Haziran 2026", egitim_son_tarih:"30.08.2026", egitim_goster:"evet", toolbox_ay:"Haziran", kso_orani:"2.4", kso_kaza:"2", kso_hedef:"0,39", slogan:"GÜVENLİĞİ KATMAN KATMAN İNŞA EDİYORUZ", sarikart_ay:"Haziran", agac_toplam:"193", agac_kapasite:"400", agac_ay:"17" },
   sariKart:[
     {isim:"Hakan Bölük",adet:27},{isim:"Yasin Baysal",adet:16},{isim:"Bilal Okuyucular",adet:6},
@@ -798,6 +809,26 @@ function render(data){
     initPages();
   }
 
+  // Görsel sayfaları (dinamik, rotasyon sonunda) — sadece içerik değişince yeniden kur
+  var gs=data.gorseller||[], yeniSig="", gi;
+  for(gi=0;gi<gs.length;gi++){ if(gs[gi].gorsel){ yeniSig+=gs[gi].gorsel+"|"+(gs[gi].tesis||"")+"|"+(gs[gi].aciklama||"")+"##"; } }
+  if(yeniSig!==gsSig){
+    gsSig=yeniSig;
+    var stg=document.querySelector(".stage");
+    var esk=stg.querySelectorAll(".pg-gorsel"), ge;
+    for(ge=esk.length-1;ge>=0;ge--){ stg.removeChild(esk[ge]); }
+    for(gi=0;gi<gs.length;gi++){
+      if(!gs[gi].gorsel){ continue; }
+      var pg=document.createElement("div");
+      pg.className="page pg-gorsel";
+      pg.innerHTML='<div class="ptitle"><div class="ico" style="background:#F5C400;"></div><h2>Tehlikeyi Gör, Öğren ve Önle!</h2></div>'+
+        '<div class="gorwrap"><div class="gorimg"><img src="gorseller/'+esc(gs[gi].gorsel)+'" onerror="this.onerror=null;this.src=GORSEL_YOK"></div>'+
+        '<div class="gorcap"><div class="gortesis">'+esc(gs[gi].tesis||"")+'</div><div class="goraciklama">'+esc(gs[gi].aciklama||"")+'</div></div></div>';
+      stg.appendChild(pg);
+    }
+    initPages();
+  }
+
   var tb=data.toolbox||[], tbAy=a.toolbox_ay||"", tlh="", trh="", tyo=0, tyt=0;
   byId("tbAy").innerHTML=tbAy?("Bu Ay · "+tbAy):"Bu Ay";
   for(i=0;i<tb.length;i++){
@@ -881,7 +912,7 @@ function render(data){
 function load(){
   var foot=byId("foot");
   if(!SHEET_ID){ render(DEMO); foot.innerHTML="demo mod · Sheet ID girilmedi"; return; }
-  var tabs=[SEKME.ayarlar,SEKME.sariKart,SEKME.tesisKart,SEKME.kurul,SEKME.kazalar,SEKME.aksiyon,SEKME.tesisGun,SEKME.egitim,SEKME.toolbox,SEKME.kazaTur,SEKME.kazaTesis,SEKME.betekGun,SEKME.sariKartAy];
+  var tabs=[SEKME.ayarlar,SEKME.sariKart,SEKME.tesisKart,SEKME.kurul,SEKME.kazalar,SEKME.aksiyon,SEKME.tesisGun,SEKME.egitim,SEKME.toolbox,SEKME.kazaTur,SEKME.kazaTesis,SEKME.betekGun,SEKME.sariKartAy,SEKME.gorseller];
   var results={}, done=0, okCount=0, k;
   function after(){
     done++;
@@ -889,7 +920,7 @@ function load(){
     if(okCount===0){ render(DEMO); foot.innerHTML="bağlantı hatası · demo gösteriliyor"; return; }
     var ayarlar={}, ay=results[SEKME.ayarlar]||[], i;
     for(i=0;i<ay.length;i++){ if(ay[i].anahtar){ ayarlar[ay[i].anahtar]=ay[i].deger; } }
-    render({ ayarlar:ayarlar, sariKart:results[SEKME.sariKart]||[], tesisKart:results[SEKME.tesisKart]||[], kurul:results[SEKME.kurul]||[], kazalar:results[SEKME.kazalar]||[], aksiyon:results[SEKME.aksiyon]||[], tesisGun:results[SEKME.tesisGun]||[], egitim:results[SEKME.egitim]||[], toolbox:results[SEKME.toolbox]||[], kazaTur:results[SEKME.kazaTur]||[], kazaTesis:results[SEKME.kazaTesis]||[], betekGun:results[SEKME.betekGun]||[], sariKartAy:results[SEKME.sariKartAy]||[] });
+    render({ ayarlar:ayarlar, sariKart:results[SEKME.sariKart]||[], tesisKart:results[SEKME.tesisKart]||[], kurul:results[SEKME.kurul]||[], kazalar:results[SEKME.kazalar]||[], aksiyon:results[SEKME.aksiyon]||[], tesisGun:results[SEKME.tesisGun]||[], egitim:results[SEKME.egitim]||[], toolbox:results[SEKME.toolbox]||[], kazaTur:results[SEKME.kazaTur]||[], kazaTesis:results[SEKME.kazaTesis]||[], betekGun:results[SEKME.betekGun]||[], sariKartAy:results[SEKME.sariKartAy]||[], gorseller:results[SEKME.gorseller]||[] });
     foot.innerHTML="veri güncellendi";
   }
   for(k=0;k<tabs.length;k++){
@@ -979,7 +1010,8 @@ function havaCek(){
   });
 }
 
-var pages, dots, idx=0, prog, egitimVisible=true;
+var pages, dots, idx=0, prog, egitimVisible=true, gsSig="__ilk__";
+var GORSEL_YOK="data:image/svg+xml;charset=utf-8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500"><rect width="800" height="500" fill="#141A1F"/><text x="400" y="250" fill="#8A97A0" font-family="Arial" font-size="34" text-anchor="middle">Gorsel bulunamadi</text></svg>');
 function initPages(){
   var i, ndc=document.querySelectorAll(".page");
   for(i=0;i<ndc.length;i++){ ndc[i].className=ndc[i].className.replace(" active",""); }
