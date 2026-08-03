@@ -41,7 +41,9 @@
   .wxic{width:3.4vh;height:3.4vh;display:block;margin-right:.45vw;flex:0 0 auto;}
   .wxic svg{width:100%;height:100%;display:block;}
   .wxv{font-size:2.5vh;font-weight:700;color:#EAEEF1;white-space:nowrap;}
-  .wxalert{flex:0 0 auto;display:flex;align-items:center;justify-content:center;padding:1.1vh 3vw;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:2.3vh;letter-spacing:.03em;text-transform:uppercase;border-bottom:1px solid #2A343B;}
+  @-webkit-keyframes wxpulse{0%{opacity:1}50%{opacity:.34}100%{opacity:1}}
+  @keyframes wxpulse{0%{opacity:1}50%{opacity:.34}100%{opacity:1}}
+  .wxalert{flex:0 0 auto;display:flex;align-items:center;justify-content:center;padding:1.1vh 3vw;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:2.3vh;letter-spacing:.03em;text-transform:uppercase;border-bottom:1px solid #2A343B;-webkit-animation:wxpulse 1.6s ease-in-out infinite;animation:wxpulse 1.6s ease-in-out infinite;}
   .wxalert .wxi{width:1.5vh;height:1.5vh;border-radius:50%;margin-right:1.2vw;flex:0 0 auto;}
   .wxalert.hot{background:rgba(255,82,54,.14);color:#FF8A6B;}
   .wxalert.hot .wxi{background:#FF5236;}
@@ -970,13 +972,13 @@ function havaUyari(t,nem,ani,kod){
   var al=[];
   var kar=((kod>=71&&kod<=77)||kod===85||kod===86);
   var donan=((kod>=56&&kod<=57)||(kod>=66&&kod<=67));
-  if(ani>=RUZGAR_ANI){ al.push({c:"wind",m:"Kuvvetli ani rüzgâr ("+ani+" km/s) — yüksekte çalışma ve yük indirme/kaldırma operasyonlarını durdurun"}); }
+  if(ani>=RUZGAR_ANI){ al.push({c:"wind",m:"Kuvvetli ani rüzgâr ("+ani+" km/s) — yüksekte çalışma ve yük indirme/kaldırma operasyonlarını gözden geçirin, gerekiyorsa ara verin"}); }
   if(kar||donan||t<=4){
     var bas=kar?"Kar yağışı":(donan?"Donan yağış":"Don ve buzlanma riski");
-    al.push({c:"cold",m:bas+" — zemin kaygan olabilir. Penguen yürüyüşü: kısa adımlarla, ellerinizi cebinizden çıkararak yürüyün"});
+    al.push({c:"cold",m:bas+" — zemin kaygan olabilir, dikkatli hareket edin. Penguen yürüyüşü: kısa adımlarla, ellerinizi cebinizden çıkararak yürüyün"});
   }
-  if(t>=32){ al.push({c:"hot",m:"Hava sıcak — sıvı tüketimine ve molalara dikkat edin"}); }
-  if(nem>=75){ al.push({c:"hum",m:"Nem yüksek — ısı stresine karşı sıvı alımını artırın"}); }
+  if(t>=32){ al.push({c:"hot",m:"Hava sıcak — sıvı tüketimine ve molalara özen gösterin"}); }
+  if(nem>=75){ al.push({c:"hum",m:"Nem yüksek — ısı stresine karşı sıvı alımına dikkat edin"}); }
   return al;
 }
 function havaCek(){
