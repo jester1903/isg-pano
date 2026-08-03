@@ -53,6 +53,8 @@
   .wxalert.wind .wxi{background:#F5C400;}
   .wxalert.hum{background:rgba(52,196,106,.14);color:#5FD98A;}
   .wxalert.hum .wxi{background:#34C46A;}
+  .wxalert.stat{background:rgba(196,132,255,.14);color:#C9A6FF;}
+  .wxalert.stat .wxi{background:#B388FF;}
   .wxalert .sep{margin:0 1.6vw;opacity:.4;}
 
   .stage{flex:1 1 auto;position:relative;overflow:hidden;}
@@ -979,6 +981,7 @@ function havaUyari(t,nem,ani,kod){
   }
   if(t>=32){ al.push({c:"hot",m:"Hava sıcak — sıvı tüketimine ve molalara özen gösterin"}); }
   if(nem>=75){ al.push({c:"hum",m:"Nem yüksek — ısı stresine karşı sıvı alımına dikkat edin"}); }
+  if(nem<=35){ al.push({c:"stat",m:"Hava kuru — statik elektrik riski artar, topraklama ve antistatik önlemlere dikkat edin"}); }
   return al;
 }
 function havaCek(){
