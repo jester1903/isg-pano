@@ -43,27 +43,15 @@
   .wxv{font-size:2.5vh;font-weight:700;color:#EAEEF1;white-space:nowrap;}
   @-webkit-keyframes wxpulse{0%{opacity:1}50%{opacity:.34}100%{opacity:1}}
   @keyframes wxpulse{0%{opacity:1}50%{opacity:.34}100%{opacity:1}}
-  .wxalert{flex:0 0 auto;display:flex;align-items:center;justify-content:center;padding:1.1vh 3vw;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:2.3vh;letter-spacing:.03em;text-transform:uppercase;border-bottom:1px solid #2A343B;-webkit-animation:wxpulse 1.6s ease-in-out infinite;animation:wxpulse 1.6s ease-in-out infinite;}
-  .wxalert .wxi{width:1.5vh;height:1.5vh;border-radius:50%;margin-right:1.2vw;flex:0 0 auto;}
-  .wxalert.hot{background:rgba(255,82,54,.14);color:#FF8A6B;}
-  .wxalert.hot .wxi{background:#FF5236;}
-  .wxalert.cold{background:rgba(125,176,255,.14);color:#9DC3FF;}
-  .wxalert.cold .wxi{background:#7DB0FF;}
-  .wxalert.rain{background:rgba(90,169,230,.14);color:#7FC3F0;}
-  .wxalert.rain .wxi{background:#5AA9E6;}
-  .wxalert.wind{background:rgba(245,196,0,.14);color:#F5C400;}
-  .wxalert.wind .wxi{background:#F5C400;}
-  .wxalert.hum{background:rgba(52,196,106,.14);color:#5FD98A;}
-  .wxalert.hum .wxi{background:#34C46A;}
-  .wxalert.stat{background:rgba(196,132,255,.14);color:#C9A6FF;}
-  .wxalert.stat .wxi{background:#B388FF;}
-  .wxalert .sep{margin:0 1.6vw;opacity:.4;}
+  .wxalert{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;padding:.8vh 3vw;background:rgba(255,45,32,.12);border-bottom:1px solid rgba(255,45,32,.35);-webkit-animation:wxpulse 1.6s ease-in-out infinite;animation:wxpulse 1.6s ease-in-out infinite;}
+  .wxalert .wxa-row{display:flex;align-items:center;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:2vh;letter-spacing:.03em;text-transform:uppercase;color:#FF6A52;line-height:1.2;padding:.28vh 0;}
+  .wxalert .wxa-dot{width:1.1vh;height:1.1vh;border-radius:50%;background:#FF2D20;margin-right:1vw;flex:0 0 auto;}
 
   .p-wxfull{align-items:center;justify-content:center;text-align:center;}
   .wxf-card{width:82vw;max-width:82vw;border-radius:22px;border:1px solid #2A343B;background:#141A1F;padding:5vh 4vw;display:flex;flex-direction:column;align-items:center;}
   .wxf-ico{width:15vh;height:15vh;-webkit-animation:wxpulse 1.6s ease-in-out infinite;animation:wxpulse 1.6s ease-in-out infinite;}
   .wxf-ico svg{width:100%;height:100%;display:block;}
-  .wxf-eyebrow{margin-top:2.5vh;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3vh;letter-spacing:.24em;text-transform:uppercase;color:#8A97A0;}
+  .wxf-eyebrow{margin-top:2vh;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:800;font-size:5vh;letter-spacing:.34em;text-transform:uppercase;color:#F5C400;}
   .wxf-list{margin-top:3.5vh;width:100%;display:flex;flex-direction:column;align-items:stretch;}
   .wxf-row{display:flex;align-items:center;justify-content:center;text-align:left;margin:1.1vh 0;padding:2vh 3vw;border-radius:14px;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3.4vh;line-height:1.2;letter-spacing:.02em;text-transform:uppercase;-webkit-animation:wxpulse 1.6s ease-in-out infinite;animation:wxpulse 1.6s ease-in-out infinite;}
   .wxf-row .wxfdot{width:2.2vh;height:2.2vh;border-radius:50%;margin-right:1.6vw;flex:0 0 auto;}
@@ -369,7 +357,7 @@
     <div class="page p-wxfull" id="pgWxFull" style="display:none;">
       <div class="wxf-card" id="wxfCard">
         <div class="wxf-ico" id="wxfIco"></div>
-        <div class="wxf-eyebrow">İş Sağlığı ve Güvenliği Uyarısı</div>
+        <div class="wxf-eyebrow">DİKKAT</div>
         <div class="wxf-list" id="wxfList"></div>
         <div class="wxf-cond" id="wxfCond"></div>
       </div>
@@ -1032,19 +1020,16 @@ function havaCek(){
     byId("wxHum").innerHTML="%"+nem;
     byId("wxbox").style.display="";
     var al=havaUyari(t,nem,ani,kod), el=byId("wxAlert");
-    var renk={hot:"#FF5236",cold:"#7DB0FF",rain:"#5AA9E6",wind:"#F5C400",hum:"#34C46A",stat:"#B388FF"};
     if(al.length){
-      var msgs="", j;
-      for(j=0;j<al.length && j<3;j++){ msgs+=(j?'<span class="sep">·</span>':"")+esc(al[j].m); }
-      el.className="wxalert "+al[0].c;
-      el.innerHTML='<span class="wxi"></span>'+msgs;
+      var rows="", j;
+      for(j=0;j<al.length && j<4;j++){ rows+='<div class="wxa-row"><span class="wxa-dot"></span>'+esc(al[j].m)+'</div>'; }
+      el.innerHTML=rows;
       el.style.display="";
     } else {
       el.style.display="none"; el.innerHTML="";
     }
-    // Tam ekran hava uyarısı sayfası
-    var tepeRenk=al.length?(renk[al[0].c]||"#F5C400"):"#F5C400";
-    byId("wxfIco").innerHTML='<svg viewBox="0 0 24 24"><path d="M12 2.2 1.3 21h21.4L12 2.2z" fill="none" stroke="'+tepeRenk+'" stroke-width="2" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6" rx="1" fill="'+tepeRenk+'"/><rect x="11" y="16.6" width="2" height="2" rx="1" fill="'+tepeRenk+'"/></svg>';
+    // Tam ekran hava uyarısı sayfası — sabit sarı ünlem levhası
+    byId("wxfIco").innerHTML='<svg viewBox="0 0 24 24"><path d="M12 2.2 1.3 21h21.4L12 2.2z" fill="#F5C400" stroke="#F5C400" stroke-width="1.2" stroke-linejoin="round"/><rect x="11" y="8.4" width="2" height="6.4" rx="1" fill="#1A1A1A"/><rect x="11" y="16.4" width="2" height="2.2" rx="1" fill="#1A1A1A"/></svg>';
     var lh="", k;
     for(k=0;k<al.length;k++){ lh+='<div class="wxf-row '+al[k].c+'"><span class="wxfdot"></span>'+esc(al[k].m)+'</div>'; }
     byId("wxfList").innerHTML=lh;
