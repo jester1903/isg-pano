@@ -997,12 +997,12 @@ function havaUyari(t,nem,ani,kod){
   var yagmur=(!donan)&&((kod>=51&&kod<=67)||(kod>=80&&kod<=82)||kod>=95);
   if(yagmur){ al.push({c:"rain",m:"Yağmurlu ve ıslak zemin — dış alanda yüksekte çalışma ile malzeme indirme/kaldırma operasyonlarında dikkatli olun"}); }
   if(t>=32){ al.push({c:"hot",m:"Hava sıcak — sıvı tüketimine ve molalara özen gösterin"}); }
-  if(nem>=75){ al.push({c:"hum",m:"Nem yüksek — ısı stresine karşı sıvı alımına dikkat edin"}); }
+  if(nem>=75 && t>=26){ al.push({c:"hum",m:"Sıcak ve nemli — ısı stresine karşı sıvı alımına ve molalara dikkat edin"}); }
   if(nem<=35){ al.push({c:"stat",m:"Hava kuru — statik elektrik riski artar, topraklama ve antistatik önlemlere dikkat edin"}); }
   return al;
 }
 function havaCek(){
-  var url="https://api.open-meteo.com/v1/forecast?latitude="+WX_LAT+"&longitude="+WX_LON+"&current=temperature_2m,relative_humidity_2m,wind_gusts_10m,weather_code,is_day&wind_speed_unit=kmh";
+  var url="https://api.open-meteo.com/v1/forecast?latitude="+WX_LAT+"&longitude="+WX_LON+"&current=temperature_2m,relative_humidity_2m,wind_gusts_10m,weather_code,is_day&hourly=weather_code,wind_gusts_10m,temperature_2m,precipitation&forecast_hours=4&wind_speed_unit=kmh";
   xhrGet(url, function(err, txt){
     if(err){ return; }
     var d; try{ d=JSON.parse(txt); }catch(e){ return; }
@@ -1020,6 +1020,33 @@ function havaCek(){
     byId("wxHum").innerHTML="%"+nem;
     byId("wxbox").style.display="";
     var al=havaUyari(t,nem,ani,kod), el=byId("wxAlert");
+    // Önümüzdeki 1-3 saatlik tahmin uyarıları (mevcut durumda olmayan kategoriler için)
+    function varMi(c){ var q; for(q=0;q<al.length;q++){ if(al[q].c===c){ return true; } } return false; }
+    var H=d.hourly;
+    if(H && H.weather_code && H.weather_code.length>1){
+      var n=H.weather_code.length, s, kk, gg, tt, pp;
+      var yagBek=0, karBek=0, donBek=0, sogBek=0, ruzBek=0;
+      for(s=1;s<n && s<=3;s++){
+        kk=parseInt(H.weather_code[s],10)||0;
+        gg=H.wind_gusts_10m?Math.round(H.wind_gusts_10m[s]):0;
+        tt=H.temperature_2m?H.temperature_2m[s]:99;
+        pp=H.precipitation?H.precipitation[s]:0;
+        var fkar=((kk>=71&&kk<=77)||kk===85||kk===86);
+        var fdon=((kk>=56&&kk<=57)||(kk>=66&&kk<=67));
+        var fyag=(!fdon)&&(!fkar)&&((kk>=51&&kk<=67)||(kk>=80&&kk<=82)||kk>=95||pp>=0.2);
+        if(fyag && !yagBek){ yagBek=s; }
+        if(fkar && !karBek){ karBek=s; }
+        if(fdon && !donBek){ donBek=s; }
+        if(tt<=4 && !sogBek){ sogBek=s; }
+        if(gg>=RUZGAR_ANI && !ruzBek){ ruzBek=s; }
+      }
+      if(ruzBek && !varMi("wind")){ al.push({c:"wind",m:"Kuvvetli rüzgâr bekleniyor (~"+ruzBek+" saat içinde) — yüksekte çalışma ve yük indirme/kaldırma operasyonlarını gözden geçirin"}); }
+      if((karBek||donBek||sogBek) && !varMi("cold")){
+        var ilk=karBek||donBek||sogBek, bas2=karBek?"Kar yağışı":(donBek?"Donan yağış":"Don ve buzlanma");
+        al.push({c:"cold",m:bas2+" bekleniyor (~"+ilk+" saat içinde) — zemin kaygan olabilir. Penguen yürüyüşü: kısa adımlarla, ellerinizi cebinizden çıkararak yürüyün"});
+      }
+      if(yagBek && !varMi("rain")){ al.push({c:"rain",m:"Yağış bekleniyor (~"+yagBek+" saat içinde) — dış alanda yüksekte çalışma ile malzeme indirme/kaldırma operasyonlarında dikkatli olun"}); }
+    }
     if(al.length){
       var rows="", j;
       for(j=0;j<al.length && j<4;j++){ rows+='<div class="wxa-row"><span class="wxa-dot"></span>'+esc(al[j].m)+'</div>'; }
