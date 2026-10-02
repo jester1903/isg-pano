@@ -92,7 +92,7 @@
   .ch{display:flex;align-items:center;margin-bottom:2vh;flex:0 0 auto;}
   .ch .card-ico{width:2.4vh;height:3.4vh;background:#F5C400;border-radius:4px;margin-right:.8vw;box-shadow:0 0 16px rgba(245,196,0,.45);}
   .ch h3{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:2.8vh;letter-spacing:.06em;text-transform:uppercase;}
-  .subch{margin-top:4vh;margin-bottom:1.2vh;}
+  .subch{margin-top:2.4vh;margin-bottom:1vh;}
   .subch h3{font-size:2.4vh;}
   .medal{width:5vh;height:5vh;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:800;font-size:2.6vh;color:#0F1417;flex:0 0 auto;margin-right:1.2vw;}
   .medal.m1{background:linear-gradient(145deg,#FFE082,#E0A800);box-shadow:0 0 16px rgba(245,196,0,.5);}
@@ -100,25 +100,25 @@
   .medal.m3{background:linear-gradient(145deg,#E8B584,#B87333);}
   .medal.m4,.medal.m5{background:#232C33;color:#8A97A0;border:1px solid #2A343B;}
   .podium{display:flex;align-items:flex-end;justify-content:center;gap:1vw;flex:0 0 auto;}
-  .pod{background:#1E262C;border:1px solid #2A343B;border-radius:14px;padding:2vh 1vw;text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;}
-  .pod.first{padding-top:3.5vh;padding-bottom:3.5vh;border-color:rgba(245,196,0,.4);background:linear-gradient(180deg,rgba(245,196,0,.12),#1E262C);}
-  .pod .medal{margin-right:0;margin-bottom:1.2vh;width:6vh;height:6vh;font-size:3vh;}
-  .pod.first .medal{width:7vh;height:7vh;font-size:3.6vh;}
-  .pod .pnm{font-size:1.9vh;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
-  .pod .pct{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:800;font-size:4vh;color:#F5C400;margin-top:.4vh;}
-  .pod.first .pct{font-size:5.2vh;}
-  .ladder{flex:1;display:flex;flex-direction:column;justify-content:center;}
-  .rank{display:flex;align-items:center;padding:1vh .5vw;border-bottom:1px solid #2A343B;}
-  .rank .nm{flex:1;font-size:2.5vh;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .rank .ct{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3.4vh;color:#F5C400;display:flex;align-items:center;}
+  .pod{background:#1E262C;border:1px solid #2A343B;border-radius:14px;padding:1.6vh 1vw;text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;}
+  .pod.first{padding-top:2.4vh;padding-bottom:2.4vh;border-color:rgba(245,196,0,.4);background:linear-gradient(180deg,rgba(245,196,0,.12),#1E262C);}
+  .pod .medal{margin-right:0;margin-bottom:1vh;width:5vh;height:5vh;font-size:2.6vh;}
+  .pod.first .medal{width:6vh;height:6vh;font-size:3.1vh;}
+  .pod .pnm{font-size:1.8vh;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+  .pod .pct{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:800;font-size:3.4vh;color:#F5C400;margin-top:.3vh;}
+  .pod.first .pct{font-size:4.4vh;}
+  .ladder{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;overflow:hidden;}
+  .rank{display:flex;align-items:center;padding:.6vh .5vw;border-bottom:1px solid #2A343B;flex:0 0 auto;}
+  .rank .nm{flex:1;font-size:2.3vh;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rank .ct{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3vh;color:#F5C400;display:flex;align-items:center;}
   .rank .ct .k{width:1.8vh;height:2.6vh;background:#F5C400;border-radius:3px;margin-right:.6vw;}
   .rank.lead .nm{font-weight:700;}
-  .fbars{flex:1;display:flex;flex-direction:column;justify-content:space-between;padding:1vh 0;}
+  .fbars{flex:1;display:flex;flex-direction:column;justify-content:space-between;padding:.3vh 0;min-height:0;overflow:hidden;}
   .fbar{margin:0;}
-  .fbar .fl{display:flex;justify-content:space-between;margin-bottom:.45vh;}
-  .fbar .fn{font-size:2vh;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .fbar .fv{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:2.5vh;color:#F5C400;padding-left:1vw;}
-  .fbar .track{height:1.5vh;background:#1E262C;border-radius:9px;overflow:hidden;}
+  .fbar .fl{display:flex;justify-content:space-between;margin-bottom:.4vh;}
+  .fbar .fn{font-size:1.85vh;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .fbar .fv{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:2.3vh;color:#F5C400;padding-left:1vw;}
+  .fbar .track{height:1.3vh;background:#1E262C;border-radius:9px;overflow:hidden;}
   .fbar .fill{height:100%;background:#F5C400;border-radius:9px;}
 
   .decwrap{flex:1;display:flex;flex-direction:column;justify-content:center;}
@@ -1056,9 +1056,8 @@ function havaCek(){
       for(j=0;j<gos;j++){ rows+='<div class="wxa-row"><span class="wxa-dot"></span>'+esc(al[j].m)+'</div>'; }
       el.className="wxalert n"+gos;
       el.innerHTML=rows;
-      el.style.display="";
     } else {
-      el.className="wxalert"; el.style.display="none"; el.innerHTML="";
+      el.className="wxalert"; el.innerHTML="";
     }
     // Tam ekran hava uyarısı sayfası — sabit sarı ünlem levhası
     byId("wxfIco").innerHTML='<svg viewBox="0 0 24 24"><path d="M12 2.2 1.3 21h21.4L12 2.2z" fill="#F5C400" stroke="#F5C400" stroke-width="1.2" stroke-linejoin="round"/><rect x="11" y="8.4" width="2" height="6.4" rx="1" fill="#1A1A1A"/><rect x="11" y="16.4" width="2" height="2.2" rx="1" fill="#1A1A1A"/></svg>';
@@ -1068,6 +1067,7 @@ function havaCek(){
     byId("wxfCond").innerHTML="Gebze · "+t+"°C · Ani rüzgâr "+ani+" km/s · Nem %"+nem;
     var yeniAktif=(al.length>0);
     if(yeniAktif!==wxActive){ wxActive=yeniAktif; byId("pgWxFull").style.display=wxActive?"":"none"; initPages(); }
+    stripGoster();
   });
 }
 
@@ -1104,6 +1104,11 @@ function restartProgress(){
     prog.style.width="100%";
   },30);
 }
+function stripGoster(){
+  var s=byId("wxAlert"); if(!s){ return; }
+  var tamSayfa=(seq && seq[idx]===byId("pgWxFull"));
+  s.style.display=(wxActive && !tamSayfa)?"":"none";
+}
 function goto(i){
   seq[idx].className=seq[idx].className.replace(" active","");
   dots[idx].className="";
@@ -1111,6 +1116,7 @@ function goto(i){
   seq[idx].className+=" active";
   dots[idx].className="on";
   restartProgress();
+  stripGoster();
 }
 
 setDate();
