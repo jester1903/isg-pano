@@ -656,46 +656,53 @@ function drawAgacDal(aylar, curIdx){
   ctx.beginPath(); ctx.arc(0,0,W*0.30,0,Math.PI*2); ctx.fill();
   ctx.restore();
 
-  // gövde (hafif eğimli, doğal taper)
-  var baseY=H*0.96, forkY=H*0.50;
+  // Kademeli gövde: N1 (alt çatal) → N2 (orta) → N3 (üst) → tepe
+  var baseY=H*0.96, forkY=H*0.60;
+  var N1={x:W/2, y:H*0.60}, N2={x:W/2, y:H*0.42}, N3={x:W/2, y:H*0.28};
+
+  // gövde tabandan N1'e (taper)
   ctx.fillStyle="#4A2A12";
   ctx.beginPath();
   ctx.moveTo(W/2-30,baseY);
-  ctx.quadraticCurveTo(W/2-22,H*0.72,W/2-13,forkY);
-  ctx.quadraticCurveTo(W/2-4,H*0.60,W/2+13,forkY);
-  ctx.quadraticCurveTo(W/2+24,H*0.72,W/2+30,baseY);
+  ctx.quadraticCurveTo(W/2-24,H*0.78,W/2-14,N1.y);
+  ctx.lineTo(W/2+14,N1.y);
+  ctx.quadraticCurveTo(W/2+24,H*0.78,W/2+30,baseY);
   ctx.closePath(); ctx.fill();
 
-  // Dal uçları — ay indeksi : [x, y, uzunluk kolu] oranları (W,H'e göre). Doğal, yukarı ağırlıklı.
-  var P=[
-    [0.50,0.095,1.0],[0.40,0.15,0.95],[0.60,0.135,0.95],[0.315,0.235,0.9],
-    [0.685,0.225,0.9],[0.49,0.225,0.82],[0.245,0.34,0.85],[0.755,0.325,0.85],
-    [0.375,0.37,0.78],[0.625,0.385,0.78],[0.30,0.455,0.8],[0.705,0.455,0.8]
+  // ana gövdenin yukarı devamı (N1→N2→N3) — gittikçe incelen (tepe dalı apeksi oluşturur)
+  ctx.strokeStyle="#4A2A12"; ctx.lineCap="round";
+  ctx.lineWidth=20; ctx.beginPath(); ctx.moveTo(N1.x,N1.y+4); ctx.lineTo(N2.x,N2.y); ctx.stroke();
+  ctx.lineWidth=15; ctx.beginPath(); ctx.moveTo(N2.x,N2.y); ctx.lineTo(N3.x,N3.y); ctx.stroke();
+
+  // 12 dal ucu: ay sırasına göre [x, y, çıktığı düğüm, kalınlık]
+  // 1-2-3 → sol alt (N1) · 4-5 → sağ alt (N1) · 6-7-8 → sağ üst (N2) · 9-10-11 → sol üst (N2) · 12 → tepe (N3)
+  var T=[
+    [0.20,0.50,N1,1.0],[0.27,0.58,N1,0.95],[0.35,0.63,N1,0.9],   // 1-2-3 sol alt
+    [0.73,0.50,N1,1.0],[0.66,0.60,N1,0.95],                       // 4-5 sağ alt
+    [0.79,0.33,N2,0.95],[0.71,0.25,N2,0.9],[0.63,0.37,N2,0.85],  // 6-7-8 sağ üst
+    [0.21,0.33,N2,0.95],[0.29,0.25,N2,0.9],[0.37,0.37,N2,0.85],  // 9-10-11 sol üst
+    [0.50,0.13,N3,0.95]                                           // 12 tepe
   ];
   var fork={x:W/2,y:forkY};
-  var nodes=[{x:W*0.43,y:H*0.42},{x:W/2,y:H*0.34},{x:W*0.57,y:H*0.42}];
 
-  // ana kollar (kalın)
-  ctx.strokeStyle="#4A2A12"; ctx.lineCap="round";
-  for(i=0;i<3;i++){
-    ctx.lineWidth=16-i*1;
-    ctx.beginPath(); ctx.moveTo(fork.x,fork.y+6);
-    ctx.quadraticCurveTo((fork.x+nodes[i].x)/2,(fork.y+nodes[i].y)/2+10,nodes[i].x,nodes[i].y);
-    ctx.stroke();
-  }
-
-  // önce ince dalları çiz
   var tips=[];
   for(i=0;i<12;i++){
-    var tx=P[i][0]*W, ty=P[i][1]*H;
-    var nd=nodes[ tx<W*0.42?0 : (tx>W*0.58?2:1) ];
+    var tx=T[i][0]*W, ty=T[i][1]*H, nd=T[i][2];
     tips.push({x:tx,y:ty,c:aylar[i]||0,cur:(i===curIdx),idx:i});
-    ctx.strokeStyle="#4A2A12"; ctx.lineWidth=5.5+P[i][2]*4;
+    ctx.strokeStyle="#4A2A12"; ctx.lineCap="round"; ctx.lineWidth=6+T[i][3]*5;
     ctx.beginPath(); ctx.moveTo(nd.x,nd.y);
-    var mcx=(nd.x+tx)/2+(agacRnd(i*3)-0.5)*40, mcy=(nd.y+ty)/2;
+    var mcx=(nd.x+tx)/2+(agacRnd(i*3)-0.5)*30, mcy=(nd.y+ty)/2+6;
     ctx.quadraticCurveTo(mcx,mcy,tx,ty);
     ctx.stroke();
   }
+
+  // tepe dalının ucundan iki küçük çatal (ağaç havası)
+  var ttx=T[11][0]*W, tty=T[11][1]*H;
+  ctx.strokeStyle="#4A2A12"; ctx.lineCap="round"; ctx.lineWidth=5;
+  ctx.beginPath(); ctx.moveTo(ttx,tty+6);
+  ctx.quadraticCurveTo(ttx-20,tty-18,ttx-34,tty-30); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ttx,tty+6);
+  ctx.quadraticCurveTo(ttx+20,tty-16,ttx+32,tty-26); ctx.stroke();
 
   var GA=2.399963;
   // yaprak tonları (koyudan açığa — derinlik için)
@@ -710,19 +717,20 @@ function drawAgacDal(aylar, curIdx){
     var tp0=tips[i], c0=tp0.c;
     tp0.lobes=[];
     if(c0<=0){ continue; }
-    var R=22+Math.sqrt(c0)*6.4;                       // taban yumak yarıçapı
-    var nLobe=1+Math.round(c0/14); if(nLobe<1){nLobe=1;} if(nLobe>3){nLobe=3;}
+    // Bildirimi olan her dal eşit GÜR (yoğunluk sayıya orantılı değil); sıfır olan boş kalır
+    var R=66+agacRnd(i*5)*12;                          // sabit büyük yumak (hafif doğal varyasyon)
+    var nLobe=3;
     // yürüme yönü: dala dik dışarı + yukarı ağırlıklı (yumaklar yukarı tırmanır)
     var ox=tp0.x-W/2, oy=tp0.y-forkY, ol=Math.sqrt(ox*ox+oy*oy)||1; ox/=ol; oy/=ol;
     var mx2=ox*0.40+0*0.0, my2=oy*0.40-0.95, ml=Math.sqrt(mx2*mx2+my2*my2)||1; mx2/=ml; my2/=ml;
-    var step=R*0.5, p, totW=0, ws=[];
+    var step=R*0.44, p, totW=0, ws=[];
     for(p=0;p<nLobe;p++){ ws.push(nLobe-p); totW+=(nLobe-p); }
-    var N=Math.round(c0*3.0); if(N>230){ N=230; }
+    var N=190;                                         // sabit yoğun yaprak sayısı
     for(p=0;p<nLobe;p++){
       var cx2=tp0.x+mx2*step*p+(agacRnd(i*13+p)-0.5)*R*0.4;
       var cy2=tp0.y+my2*step*p+(agacRnd(i*19+p)-0.5)*R*0.3;
       if(cy2<12){ cy2=12; }
-      tp0.lobes.push({x:cx2,y:cy2,R:R*(1-p*0.16),n:Math.round(N*ws[p]/totW)});
+      tp0.lobes.push({x:cx2,y:cy2,R:R*(1-p*0.13),n:Math.round(N*ws[p]/totW)});
     }
   }
   // 1) ARKA KATMAN — her yumağın altında koyu düzensiz kütle (boşlukları doldurur, derinlik)
@@ -752,7 +760,7 @@ function drawAgacDal(aylar, curIdx){
         var lx=lb.x+Math.cos(ang)*rad*R2*jit;
         var ly=lb.y+Math.sin(ang)*rad*R2*0.9*jit - R2*0.1;
         var depth=agacRnd(off+k+500);
-        var lr=7+depth*5;
+        var lr=11+depth*8;
         var col;
         if(tp.cur){ col=ayTon[k%4]; }
         else if(depth<0.42){ col=koyu[k%4]; lr*=1.08; }
