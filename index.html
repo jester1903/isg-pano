@@ -44,11 +44,11 @@
   @-webkit-keyframes wxpulse{0%{opacity:1}50%{opacity:.34}100%{opacity:1}}
   @keyframes wxpulse{0%{opacity:1}50%{opacity:.34}100%{opacity:1}}
   .wxalert{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;padding:.8vh 3vw;background:rgba(255,45,32,.12);border-bottom:1px solid rgba(255,45,32,.35);-webkit-animation:wxpulse 1.6s ease-in-out infinite;animation:wxpulse 1.6s ease-in-out infinite;}
-  .wxalert .wxa-row{display:flex;align-items:center;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:2.4vh;letter-spacing:.03em;text-transform:uppercase;color:#FF6A52;line-height:1.18;padding:.3vh 0;}
+  .wxalert .wxa-row{display:flex;align-items:center;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:2.4vh;letter-spacing:.02em;text-transform:uppercase;color:#FF6A52;line-height:1.18;padding:.3vh 0;white-space:nowrap;overflow:hidden;}
   .wxalert .wxa-dot{width:.62em;height:.62em;border-radius:50%;background:#FF2D20;margin-right:.9vw;flex:0 0 auto;}
-  .wxalert.n1 .wxa-row{font-size:4vh;}
-  .wxalert.n2 .wxa-row{font-size:2.9vh;}
-  .wxalert.n3 .wxa-row{font-size:2.2vh;}
+  .wxalert.n1 .wxa-row{font-size:3.1vh;}
+  .wxalert.n2 .wxa-row{font-size:2.5vh;}
+  .wxalert.n3 .wxa-row{font-size:2.1vh;}
   .wxalert.n4 .wxa-row{font-size:1.8vh;}
 
   .p-wxfull{align-items:center;justify-content:center;text-align:center;}
@@ -57,8 +57,8 @@
   .wxf-ico svg{width:100%;height:100%;display:block;}
   .wxf-eyebrow{margin-top:2vh;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:800;font-size:5vh;letter-spacing:.34em;text-transform:uppercase;color:#F5C400;}
   .wxf-list{margin-top:3.5vh;width:100%;display:flex;flex-direction:column;align-items:stretch;}
-  .wxf-row{display:flex;align-items:center;justify-content:center;text-align:left;margin:1.1vh 0;padding:2vh 3vw;border-radius:14px;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3.4vh;line-height:1.2;letter-spacing:.02em;text-transform:uppercase;-webkit-animation:wxpulse 1.6s ease-in-out infinite;animation:wxpulse 1.6s ease-in-out infinite;}
-  .wxf-row .wxfdot{width:2.2vh;height:2.2vh;border-radius:50%;margin-right:1.6vw;flex:0 0 auto;}
+  .wxf-row{display:block;text-align:center;margin:1.1vh 0;padding:2vh 3vw;border-radius:14px;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3.4vh;line-height:1.25;letter-spacing:.02em;text-transform:uppercase;-webkit-animation:wxpulse 1.6s ease-in-out infinite;animation:wxpulse 1.6s ease-in-out infinite;}
+  .wxf-row .wxfdot{display:inline-block;width:2vh;height:2vh;border-radius:50%;margin-right:1.2vw;vertical-align:middle;}
   .wxf-row.hot{background:rgba(255,82,54,.14);color:#FF8A6B;} .wxf-row.hot .wxfdot{background:#FF5236;}
   .wxf-row.cold{background:rgba(125,176,255,.14);color:#9DC3FF;} .wxf-row.cold .wxfdot{background:#7DB0FF;}
   .wxf-row.rain{background:rgba(90,169,230,.14);color:#7FC3F0;} .wxf-row.rain .wxfdot{background:#5AA9E6;}
@@ -113,12 +113,12 @@
   .rank .ct{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:3vh;color:#F5C400;display:flex;align-items:center;}
   .rank .ct .k{width:1.8vh;height:2.6vh;background:#F5C400;border-radius:3px;margin-right:.6vw;}
   .rank.lead .nm{font-weight:700;}
-  .fbars{flex:1;display:flex;flex-direction:column;justify-content:space-between;padding:.3vh 0;min-height:0;overflow:hidden;}
-  .fbar{margin:0;}
-  .fbar .fl{display:flex;justify-content:space-between;margin-bottom:.4vh;}
-  .fbar .fn{font-size:1.85vh;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .fbar .fv{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:2.3vh;color:#F5C400;padding-left:1vw;}
-  .fbar .track{height:1.3vh;background:#1E262C;border-radius:9px;overflow:hidden;}
+  .fbars{flex:1;display:flex;flex-direction:column;justify-content:center;padding:.15vh 0;min-height:0;overflow:hidden;}
+  .fbar{margin:.35vh 0;flex:0 0 auto;}
+  .fbar .fl{display:flex;justify-content:space-between;margin-bottom:.3vh;}
+  .fbar .fn{font-size:1.7vh;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .fbar .fv{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:700;font-size:2.2vh;color:#F5C400;padding-left:1vw;}
+  .fbar .track{height:1.15vh;background:#1E262C;border-radius:9px;overflow:hidden;}
   .fbar .fill{height:100%;background:#F5C400;border-radius:9px;}
 
   .decwrap{flex:1;display:flex;flex-direction:column;justify-content:center;}
@@ -295,12 +295,12 @@
       </div>
     </div>
 
-    <div class="page">
+    <div class="page" id="pgKurulBilgi">
       <div class="ptitle"><div class="ico" style="background:#7DB0FF;"></div><h2>Kurul Toplantısı · Bilgilendirmeler</h2><div class="per" id="donemBilgi">—</div></div>
       <div class="decwrap" id="kurulBilgi"></div>
     </div>
 
-    <div class="page">
+    <div class="page" id="pgKurulKarar">
       <div class="ptitle"><div class="ico" style="background:#F5C400;"></div><h2>Kurul Toplantısı · Kararlar</h2><div class="per" id="donemKarar">—</div></div>
       <div class="decwrap" id="kurulKarar"></div>
     </div>
@@ -375,7 +375,7 @@ var SHEET_ID = "1LvAWduebolUylKrcKdlSQfkMmrHsgbs6MQH1JTKUBmU";
 var REFRESH_SANIYE = 300;
 var SAYFA_SANIYE = 12;
 var YIL = 2026;
-var SEKME = { ayarlar:"Ayarlar", sariKart:"SariKart", tesisKart:"TesisKart", kurul:"Kurul", kazalar:"Kazalar", aksiyon:"Aksiyon", tesisGun:"TesisGun", egitim:"Egitim", toolbox:"Toolbox", kazaTur:"KazaTur", kazaTesis:"KazaTesis", betekGun:"BetekGun", sariKartAy:"SariKartAy", gorseller:"Gorseller" };
+var SEKME = { ayarlar:"Ayarlar", sariKart:"SariKart", tesisKart:"TesisKart", kurul:"Kurul", kazalar:"Kazalar", aksiyon:"Aksiyon", tesisGun:"TesisGun", egitim:"Egitim", toolbox:"Toolbox", kazaTur:"KazaTur", kazaTesis:"KazaTesis", betekGun:"BetekGun", sariKartAy:"SariKartAy", gorseller:"Gorseller", agacAylar:"AgacAy" };
 
 var AYLAR = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
 var AYKISA = ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
@@ -386,6 +386,10 @@ var DEMO = {
     {gorsel:"ornek1.jpg",tesis:"Su Bazlı Üretim İşletmesi",aciklama:"Dökülen kimyasalın anında temizlenmemesi kayma ve zemin kirliliği riski oluşturur. Doğru davranış: dökülmeyi gördüğünüz anda çevreyi işaretleyip uygun emici malzemeyle temizleyin, amirinize bildirin. Görmezden gelmek değil, sahiplenmek güvenli kültürün temelidir."},
     {gorsel:"ornek2.jpg",tesis:"Lojistik Depoları",aciklama:"Forklift geçiş güzergâhında yaya yürümesi ciddi çarpışma riski taşır. Doğru davranış: sarı yaya yollarını kullanın, forklift operatörüyle göz teması kurmadan geçmeyin. Acelesi olan iş değil, güvenli tamamlanan iştir."},
     {gorsel:"ornek3.jpg",tesis:"Bakım-Onarım",aciklama:"Yüksekte çalışmada emniyet kemerinin bağlanmaması düşme riskini doğrudan artırır. Doğru davranış: 1,5 metre üzerindeki tüm çalışmalarda tam vücut kemerini uygun ankraj noktasına bağlayın. Kısa süreli iş bile olsa istisna yoktur."}
+  ],
+  agacAylar:[
+    {ay:1,adet:22},{ay:2,adet:14},{ay:3,adet:31},{ay:4,adet:40},{ay:5,adet:18},{ay:6,adet:27},
+    {ay:7,adet:17},{ay:8,adet:9},{ay:9,adet:24},{ay:10,adet:12},{ay:11,adet:30},{ay:12,adet:0}
   ],
   ayarlar:{ son_kaza_tarihi:"2026-05-05", rekor_gun:"300", tesis_adi:"GEBZE TESİSİ", kurul_donem:"Haziran 2026", egitim_son_tarih:"30.08.2026", egitim_goster:"evet", toolbox_ay:"Haziran", kso_orani:"2.4", kso_kaza:"2", kso_hedef:"0,39", slogan:"GÜVENLİĞİ KATMAN KATMAN İNŞA EDİYORUZ", sarikart_ay:"Haziran", agac_toplam:"193", agac_kapasite:"400", agac_ay:"17" },
   sariKart:[
@@ -635,6 +639,111 @@ function drawAgac(total,cap,ayAdet){
   }
 }
 
+// 12 dallı organik ağaç — her dal bir ay, ucunda yaprak kümesi; yaprak sayısı = o ayın bildirimi
+// Dal uçları doğal/asimetrik, yukarı uzanır; kümeler iç içe geçip gür bir taç oluşturur. Etiket yok.
+function drawAgacDal(aylar, curIdx){
+  var cv=byId("agacCanvas");
+  if(!cv || !cv.getContext){ return; }
+  var ctx=cv.getContext("2d");
+  if(!ctx){ return; }
+  var W=cv.width, H=cv.height, i, k;
+  ctx.clearRect(0,0,W,H);
+
+  // zemin gölgesi
+  ctx.save();
+  ctx.translate(W/2,H*0.95); ctx.scale(1,0.12);
+  ctx.fillStyle="#15321F";
+  ctx.beginPath(); ctx.arc(0,0,W*0.30,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+
+  // gövde (hafif eğimli, doğal taper)
+  var baseY=H*0.96, forkY=H*0.50;
+  ctx.fillStyle="#4A2A12";
+  ctx.beginPath();
+  ctx.moveTo(W/2-30,baseY);
+  ctx.quadraticCurveTo(W/2-22,H*0.72,W/2-13,forkY);
+  ctx.quadraticCurveTo(W/2-4,H*0.60,W/2+13,forkY);
+  ctx.quadraticCurveTo(W/2+24,H*0.72,W/2+30,baseY);
+  ctx.closePath(); ctx.fill();
+
+  // Dal uçları — ay indeksi : [x, y, uzunluk kolu] oranları (W,H'e göre). Doğal, yukarı ağırlıklı.
+  var P=[
+    [0.50,0.095,1.0],[0.40,0.15,0.95],[0.60,0.135,0.95],[0.315,0.235,0.9],
+    [0.685,0.225,0.9],[0.49,0.225,0.82],[0.245,0.34,0.85],[0.755,0.325,0.85],
+    [0.375,0.37,0.78],[0.625,0.385,0.78],[0.30,0.455,0.8],[0.705,0.455,0.8]
+  ];
+  var fork={x:W/2,y:forkY};
+  var nodes=[{x:W*0.43,y:H*0.42},{x:W/2,y:H*0.34},{x:W*0.57,y:H*0.42}];
+
+  // ana kollar (kalın)
+  ctx.strokeStyle="#4A2A12"; ctx.lineCap="round";
+  for(i=0;i<3;i++){
+    ctx.lineWidth=16-i*1;
+    ctx.beginPath(); ctx.moveTo(fork.x,fork.y+6);
+    ctx.quadraticCurveTo((fork.x+nodes[i].x)/2,(fork.y+nodes[i].y)/2+10,nodes[i].x,nodes[i].y);
+    ctx.stroke();
+  }
+
+  // önce ince dalları çiz
+  var tips=[];
+  for(i=0;i<12;i++){
+    var tx=P[i][0]*W, ty=P[i][1]*H;
+    var nd=nodes[ tx<W*0.42?0 : (tx>W*0.58?2:1) ];
+    tips.push({x:tx,y:ty,c:aylar[i]||0,cur:(i===curIdx),idx:i});
+    ctx.strokeStyle="#4A2A12"; ctx.lineWidth=5.5+P[i][2]*4;
+    ctx.beginPath(); ctx.moveTo(nd.x,nd.y);
+    var mcx=(nd.x+tx)/2+(agacRnd(i*3)-0.5)*40, mcy=(nd.y+ty)/2;
+    ctx.quadraticCurveTo(mcx,mcy,tx,ty);
+    ctx.stroke();
+  }
+
+  var GA=2.399963;
+  // yaprak tonları (koyudan açığa — derinlik için)
+  var koyu=["#1C6E3C","#1E7A42","#237A45","#195F36"];
+  var orta=["#2FA85C","#34C46A","#2E9E58","#27A355"];
+  var acik=["#4ADE80","#3FBE6E","#22C55E","#5CE68A"];
+  var ayTon=["#8BF0AE","#A7F3B0","#BBF7D0","#6EE7A0"];
+
+  // kümelerin yarıçapını önce hesapla (taban büyük → komşular örtüşür, gür taç)
+  for(i=0;i<tips.length;i++){
+    var cc=tips[i].c;
+    tips[i].R=cc>0?(34+Math.sqrt(cc)*6.0):0;
+  }
+  // 1) ARKA KATMAN — iç içe geçen düzensiz koyu kütle (organik taç, boşlukları doldurur)
+  ctx.fillStyle="rgba(20,70,41,0.55)";
+  for(i=0;i<tips.length;i++){
+    var tpb=tips[i]; if(tpb.c<=0){ continue; }
+    for(var b=0;b<3;b++){
+      var bo=agacRnd(i*23+b*5), bo2=agacRnd(i*31+b*7);
+      ctx.save();
+      ctx.translate(tpb.x+(bo-0.5)*tpb.R*0.7, tpb.y+(bo2-0.5)*tpb.R*0.6 - tpb.R*0.1);
+      ctx.rotate((bo-0.5)*1.4); ctx.scale(1, 0.72+bo2*0.3);
+      ctx.beginPath(); ctx.arc(0,0,tpb.R*(0.95+bo*0.4),0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+  }
+  // 2) YAPRAKLAR — her bildirim ~2.6 yaprakçık (yoğunluk), koyudan açığa katmanlı
+  for(i=0;i<tips.length;i++){
+    var tp=tips[i], c=tp.c;
+    if(c<=0){ agacYaprak(ctx,tp.x,tp.y,7,0.5,"rgba(255,255,255,0.06)"); continue; }
+    var R=tp.R, n=Math.round(c*2.8); if(n>190){ n=190; }
+    for(k=0;k<n;k++){
+      var t=(k+0.5)/n, rad=Math.sqrt(t), ang=k*GA + i*1.7;
+      var jit=0.8+agacRnd(i*61+k)*0.55;   // kenarları dağıt, feathery
+      var lx=tp.x+Math.cos(ang)*rad*R*jit;
+      var ly=tp.y+Math.sin(ang)*rad*R*0.9*jit - R*0.1;
+      var depth=agacRnd(i*29+k);
+      var lr=7+depth*5;
+      var col;
+      if(tp.cur){ col=ayTon[k%4]; }
+      else if(depth<0.42){ col=koyu[k%4]; lr*=1.08; }
+      else if(depth<0.76){ col=orta[k%4]; }
+      else { col=acik[k%4]; }
+      agacYaprak(ctx,lx,ly,lr,ang*0.6+agacRnd(i*7+k)*1.1,col);
+    }
+  }
+}
+
 function trKisa(s){
   var d=parseTR(s); if(!d) return s||"—";
   var g=d.getDate(), m=d.getMonth()+1, y=d.getFullYear();
@@ -744,7 +853,20 @@ function render(data){
   var agacAy=parseInt(a.agac_ay,10);
   if(isNaN(agacAy) || agacAy<0){ agacAy=0; }
   byId("agacAy").innerHTML=agacAy>0?('<span class="agacdot"></span>Bu ay yeşeren: +'+agacAy+' yaprak'+(a.sarikart_ay?(" · "+esc(a.sarikart_ay)):"")):"";
-  drawAgac(agacTop,agacCap,agacAy);
+  // Aylık dağılım (AgacAy sekmesi) varsa 12 dallı ağaç, yoksa eski spiral
+  var aylar=[0,0,0,0,0,0,0,0,0,0,0,0], rawAy=data.agacAylar||[], ayVar=false;
+  for(i=0;i<rawAy.length;i++){
+    var ayn=parseInt(rawAy[i].ay,10), ada=parseInt(rawAy[i].adet,10);
+    if(!isNaN(ayn)&&ayn>=1&&ayn<=12&&!isNaN(ada)){ aylar[ayn-1]=ada; ayVar=true; }
+  }
+  if(ayVar){
+    var curIdx=-1;
+    if(a.sarikart_ay){ for(i=0;i<12;i++){ if(AYLAR[i]===a.sarikart_ay){ curIdx=i; } } }
+    if(curIdx<0){ for(i=11;i>=0;i--){ if(aylar[i]>0){ curIdx=i; break; } } }
+    drawAgacDal(aylar, curIdx);
+  } else {
+    drawAgac(agacTop,agacCap,agacAy);
+  }
 
   var allk=(data.kurul||[]).slice();
   var kararlar=[], bilgi=[];
@@ -755,6 +877,15 @@ function render(data){
   }
   byId("kurulKarar").innerHTML=kurulHtml(kararlar,"");
   byId("kurulBilgi").innerHTML=kurulHtml(bilgi,"bilgi");
+  // Boş kurul sayfasını rotasyondan çıkar
+  var wantBil=(bilgi.length>0), wantKar=(kararlar.length>0);
+  var kSig=(wantBil?"1":"0")+(wantKar?"1":"0");
+  if(kSig!==kurulSig){
+    kurulSig=kSig;
+    byId("pgKurulBilgi").style.display=wantBil?"":"none";
+    byId("pgKurulKarar").style.display=wantKar?"":"none";
+    initPages();
+  }
   var donem=a.kurul_donem||"";
   if(!donem && allk.length){ var pm=(""+(allk[0].tarih||"")).split("-"); if(pm.length>=2){ var mmi=parseInt(pm[1],10)-1; if(mmi>=0&&mmi<12){ donem=AYLAR[mmi]+" "+pm[0]; } } }
   byId("donemBilgi").innerHTML=donem;
@@ -935,7 +1066,7 @@ function render(data){
 function load(){
   var foot=byId("foot");
   if(!SHEET_ID){ render(DEMO); foot.innerHTML="demo mod · Sheet ID girilmedi"; return; }
-  var tabs=[SEKME.ayarlar,SEKME.sariKart,SEKME.tesisKart,SEKME.kurul,SEKME.kazalar,SEKME.aksiyon,SEKME.tesisGun,SEKME.egitim,SEKME.toolbox,SEKME.kazaTur,SEKME.kazaTesis,SEKME.betekGun,SEKME.sariKartAy,SEKME.gorseller];
+  var tabs=[SEKME.ayarlar,SEKME.sariKart,SEKME.tesisKart,SEKME.kurul,SEKME.kazalar,SEKME.aksiyon,SEKME.tesisGun,SEKME.egitim,SEKME.toolbox,SEKME.kazaTur,SEKME.kazaTesis,SEKME.betekGun,SEKME.sariKartAy,SEKME.gorseller,SEKME.agacAylar];
   var results={}, done=0, okCount=0, k;
   function after(){
     done++;
@@ -943,7 +1074,7 @@ function load(){
     if(okCount===0){ render(DEMO); foot.innerHTML="bağlantı hatası · demo gösteriliyor"; return; }
     var ayarlar={}, ay=results[SEKME.ayarlar]||[], i;
     for(i=0;i<ay.length;i++){ if(ay[i].anahtar){ ayarlar[ay[i].anahtar]=ay[i].deger; } }
-    render({ ayarlar:ayarlar, sariKart:results[SEKME.sariKart]||[], tesisKart:results[SEKME.tesisKart]||[], kurul:results[SEKME.kurul]||[], kazalar:results[SEKME.kazalar]||[], aksiyon:results[SEKME.aksiyon]||[], tesisGun:results[SEKME.tesisGun]||[], egitim:results[SEKME.egitim]||[], toolbox:results[SEKME.toolbox]||[], kazaTur:results[SEKME.kazaTur]||[], kazaTesis:results[SEKME.kazaTesis]||[], betekGun:results[SEKME.betekGun]||[], sariKartAy:results[SEKME.sariKartAy]||[], gorseller:results[SEKME.gorseller]||[] });
+    render({ ayarlar:ayarlar, sariKart:results[SEKME.sariKart]||[], tesisKart:results[SEKME.tesisKart]||[], kurul:results[SEKME.kurul]||[], kazalar:results[SEKME.kazalar]||[], aksiyon:results[SEKME.aksiyon]||[], tesisGun:results[SEKME.tesisGun]||[], egitim:results[SEKME.egitim]||[], toolbox:results[SEKME.toolbox]||[], kazaTur:results[SEKME.kazaTur]||[], kazaTesis:results[SEKME.kazaTesis]||[], betekGun:results[SEKME.betekGun]||[], sariKartAy:results[SEKME.sariKartAy]||[], gorseller:results[SEKME.gorseller]||[], agacAylar:results[SEKME.agacAylar]||[] });
     foot.innerHTML="veri güncellendi";
   }
   for(k=0;k<tabs.length;k++){
@@ -1071,7 +1202,7 @@ function havaCek(){
   });
 }
 
-var pages, seq, dots, idx=0, prog, egitimVisible=true, gsSig="__ilk__", wxActive=false;
+var pages, seq, dots, idx=0, prog, egitimVisible=true, gsSig="__ilk__", wxActive=false, kurulSig="__ilk__";
 var GORSEL_YOK="data:image/svg+xml;charset=utf-8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500"><rect width="800" height="500" fill="#141A1F"/><text x="400" y="250" fill="#8A97A0" font-family="Arial" font-size="34" text-anchor="middle">Gorsel bulunamadi</text></svg>');
 function initPages(){
   var i, ndc=document.querySelectorAll(".page"), wxEl=byId("pgWxFull");
