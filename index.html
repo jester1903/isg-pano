@@ -704,42 +704,62 @@ function drawAgacDal(aylar, curIdx){
   var acik=["#4ADE80","#3FBE6E","#22C55E","#5CE68A"];
   var ayTon=["#8BF0AE","#A7F3B0","#BBF7D0","#6EE7A0"];
 
-  // kümelerin yarıçapını önce hesapla (taban büyük → komşular örtüşür, gür taç)
+  // Her dal için üst üste binen 1-3 yumak (yoğunluk ve katman sayısı = o ayın bildirimi → büyüme hissi)
+  // Yumak merkezlerini önce kur
   for(i=0;i<tips.length;i++){
-    var cc=tips[i].c;
-    tips[i].R=cc>0?(34+Math.sqrt(cc)*6.0):0;
-  }
-  // 1) ARKA KATMAN — iç içe geçen düzensiz koyu kütle (organik taç, boşlukları doldurur)
-  ctx.fillStyle="rgba(20,70,41,0.55)";
-  for(i=0;i<tips.length;i++){
-    var tpb=tips[i]; if(tpb.c<=0){ continue; }
-    for(var b=0;b<3;b++){
-      var bo=agacRnd(i*23+b*5), bo2=agacRnd(i*31+b*7);
-      ctx.save();
-      ctx.translate(tpb.x+(bo-0.5)*tpb.R*0.7, tpb.y+(bo2-0.5)*tpb.R*0.6 - tpb.R*0.1);
-      ctx.rotate((bo-0.5)*1.4); ctx.scale(1, 0.72+bo2*0.3);
-      ctx.beginPath(); ctx.arc(0,0,tpb.R*(0.95+bo*0.4),0,Math.PI*2); ctx.fill();
-      ctx.restore();
+    var tp0=tips[i], c0=tp0.c;
+    tp0.lobes=[];
+    if(c0<=0){ continue; }
+    var R=22+Math.sqrt(c0)*6.4;                       // taban yumak yarıçapı
+    var nLobe=1+Math.round(c0/14); if(nLobe<1){nLobe=1;} if(nLobe>3){nLobe=3;}
+    // yürüme yönü: dala dik dışarı + yukarı ağırlıklı (yumaklar yukarı tırmanır)
+    var ox=tp0.x-W/2, oy=tp0.y-forkY, ol=Math.sqrt(ox*ox+oy*oy)||1; ox/=ol; oy/=ol;
+    var mx2=ox*0.40+0*0.0, my2=oy*0.40-0.95, ml=Math.sqrt(mx2*mx2+my2*my2)||1; mx2/=ml; my2/=ml;
+    var step=R*0.5, p, totW=0, ws=[];
+    for(p=0;p<nLobe;p++){ ws.push(nLobe-p); totW+=(nLobe-p); }
+    var N=Math.round(c0*3.0); if(N>230){ N=230; }
+    for(p=0;p<nLobe;p++){
+      var cx2=tp0.x+mx2*step*p+(agacRnd(i*13+p)-0.5)*R*0.4;
+      var cy2=tp0.y+my2*step*p+(agacRnd(i*19+p)-0.5)*R*0.3;
+      if(cy2<12){ cy2=12; }
+      tp0.lobes.push({x:cx2,y:cy2,R:R*(1-p*0.16),n:Math.round(N*ws[p]/totW)});
     }
   }
-  // 2) YAPRAKLAR — her bildirim ~2.6 yaprakçık (yoğunluk), koyudan açığa katmanlı
+  // 1) ARKA KATMAN — her yumağın altında koyu düzensiz kütle (boşlukları doldurur, derinlik)
+  ctx.fillStyle="rgba(20,70,41,0.52)";
   for(i=0;i<tips.length;i++){
-    var tp=tips[i], c=tp.c;
-    if(c<=0){ agacYaprak(ctx,tp.x,tp.y,7,0.5,"rgba(255,255,255,0.06)"); continue; }
-    var R=tp.R, n=Math.round(c*2.8); if(n>190){ n=190; }
-    for(k=0;k<n;k++){
-      var t=(k+0.5)/n, rad=Math.sqrt(t), ang=k*GA + i*1.7;
-      var jit=0.8+agacRnd(i*61+k)*0.55;   // kenarları dağıt, feathery
-      var lx=tp.x+Math.cos(ang)*rad*R*jit;
-      var ly=tp.y+Math.sin(ang)*rad*R*0.9*jit - R*0.1;
-      var depth=agacRnd(i*29+k);
-      var lr=7+depth*5;
-      var col;
-      if(tp.cur){ col=ayTon[k%4]; }
-      else if(depth<0.42){ col=koyu[k%4]; lr*=1.08; }
-      else if(depth<0.76){ col=orta[k%4]; }
-      else { col=acik[k%4]; }
-      agacYaprak(ctx,lx,ly,lr,ang*0.6+agacRnd(i*7+k)*1.1,col);
+    var tlb=tips[i].lobes; if(!tlb){ continue; }
+    for(var q=0;q<tlb.length;q++){
+      for(var b=0;b<2;b++){
+        var bo=agacRnd(i*23+q*9+b*5), bo2=agacRnd(i*31+q*7+b*3);
+        ctx.save();
+        ctx.translate(tlb[q].x+(bo-0.5)*tlb[q].R*0.6, tlb[q].y+(bo2-0.5)*tlb[q].R*0.5);
+        ctx.rotate((bo-0.5)*1.4); ctx.scale(1,0.74+bo2*0.26);
+        ctx.beginPath(); ctx.arc(0,0,tlb[q].R*(0.98+bo*0.35),0,Math.PI*2); ctx.fill();
+        ctx.restore();
+      }
+    }
+  }
+  // 2) YAPRAKLAR — yumak yumak, koyudan açığa katmanlı
+  for(i=0;i<tips.length;i++){
+    var tp=tips[i];
+    if(tp.c<=0){ agacYaprak(ctx,tp.x,tp.y,7,0.5,"rgba(255,255,255,0.06)"); continue; }
+    for(var lq=0;lq<tp.lobes.length;lq++){
+      var lb=tp.lobes[lq], R2=lb.R, n2=lb.n, off=i*100+lq*37;
+      for(k=0;k<n2;k++){
+        var t=(k+0.5)/n2, rad=Math.sqrt(t), ang=k*GA + off*0.3;
+        var jit=0.8+agacRnd(off+k)*0.55;
+        var lx=lb.x+Math.cos(ang)*rad*R2*jit;
+        var ly=lb.y+Math.sin(ang)*rad*R2*0.9*jit - R2*0.1;
+        var depth=agacRnd(off+k+500);
+        var lr=7+depth*5;
+        var col;
+        if(tp.cur){ col=ayTon[k%4]; }
+        else if(depth<0.42){ col=koyu[k%4]; lr*=1.08; }
+        else if(depth<0.76){ col=orta[k%4]; }
+        else { col=acik[k%4]; }
+        agacYaprak(ctx,lx,ly,lr,ang*0.6+agacRnd(off+k+9)*1.1,col);
+      }
     }
   }
 }
