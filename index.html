@@ -166,6 +166,7 @@
   .ktsplit{flex:1;display:flex;flex-direction:row;}
 
   .awrap{flex:1;display:flex;flex-direction:column;justify-content:center;}
+  .aksnot{flex:0 0 auto;margin-top:1vh;color:#6B7A85;font-size:1.6vh;font-style:italic;letter-spacing:.01em;}
   .arow{display:flex;align-items:center;padding:1.05vh .5vw;border-bottom:1px solid #2A343B;}
   .arow.atot{border-top:2px solid #2A343B;border-bottom:none;margin-top:.4vh;}
   .arow.atot .agrup{font-weight:800;color:#EAEEF1;}
@@ -308,6 +309,7 @@
     <div class="page">
       <div class="ptitle"><div class="ico" style="background:#34C46A;"></div><h2>Aksiyon (DÖF) Kapama Durumu</h2><div class="per" id="aksToplam">2026</div></div>
       <div class="awrap" id="aksiyon"></div>
+      <div class="aksnot" id="aksNot"></div>
     </div>
 
     <div class="page">
@@ -430,15 +432,15 @@ var DEMO = {
     {tarih:"2026-05-05",tesis:"İdari İşler (SOA)",tur:"Kayıp Zamanlı İş Kazası",kayip_gun:13,detay:"Ayağına yemek kazanı düşmesi"}
   ],
   aksiyon:[
-    {grup:"Boya Üretim Tesisleri",acik:414,kapanan:351},
-    {grup:"Yalıtım Üretim Tesisleri",acik:11,kapanan:75},
-    {grup:"Lojistik ve Planlama",acik:33,kapanan:235},
-    {grup:"AR-GE ve Kalite",acik:37,kapanan:152},
-    {grup:"İnsan Kaynakları",acik:20,kapanan:150},
-    {grup:"Bakım Onarım ve Yatırımlar",acik:75,kapanan:170},
-    {grup:"Satınalma",acik:11,kapanan:16},
-    {grup:"Sağlık, Emniyet ve Çevre",acik:34,kapanan:24},
-    {grup:"Diğer",acik:2,kapanan:11}
+    {grup:"Boya Üretim Tesisleri",acik:414,kapanan:351,termin_asan:40},
+    {grup:"Yalıtım Üretim Tesisleri",acik:11,kapanan:75,termin_asan:3},
+    {grup:"Lojistik ve Planlama",acik:33,kapanan:235,termin_asan:18},
+    {grup:"AR-GE ve Kalite",acik:37,kapanan:152,termin_asan:14},
+    {grup:"İnsan Kaynakları",acik:20,kapanan:150,termin_asan:9},
+    {grup:"Bakım Onarım ve Yatırımlar",acik:75,kapanan:170,termin_asan:44},
+    {grup:"Satınalma",acik:11,kapanan:16,termin_asan:6},
+    {grup:"Sağlık, Emniyet ve Çevre",acik:34,kapanan:24,termin_asan:12},
+    {grup:"Diğer",acik:2,kapanan:11,termin_asan:1}
   ],
   tesisGun:[
     {tesis:"Bakım-Onarım",son_kaza:"11.12.2025"},
@@ -919,26 +921,35 @@ function render(data){
   byId("donemBilgi").innerHTML=donem;
   byId("donemKarar").innerHTML=donem;
 
-  var aks=data.aksiyon||[], ta=0, tk2=0, ah="";
+  // UYUM = kapanan / (kapanan + termini geçmiş açık). Termini henüz gelmemiş aksiyonlar paydaya girmez.
+  var aks=data.aksiyon||[], ta=0, tk2=0, tov=0, uyumVar=false, ah="";
   function pcls(p){ return p>=90?"hi":(p>=75?"mid":"lo"); }
   var HEDEF='<div class="abartarget"></div>';
   for(i=0;i<aks.length;i++){
     var ac=parseInt(aks[i].acik,10)||0, kp=parseInt(aks[i].kapanan,10)||0;
     if(!aks[i].grup){ continue; }
-    var top=ac+kp, pct=top>0?Math.round(kp/top*100):0, cl=pcls(pct);
+    var ov=parseInt(aks[i].termin_asan,10);
+    var payda, pct;
+    if(!isNaN(ov)){ uyumVar=true; payda=kp+ov; tov+=ov; }  // UYUM paydası
+    else { payda=ac+kp; }                                   // kolon yoksa eski kapama oranı
+    pct=payda>0?Math.round(kp/payda*100):0;
+    var cl=pcls(pct);
     ta+=ac; tk2+=kp;
     ah+='<div class="arow"><div class="agrup">'+esc(aks[i].grup)+'</div>'+
         '<div class="abar"><div class="abarfill '+cl+'" style="width:'+pct+'%"></div>'+HEDEF+'</div>'+
         '<div class="apct '+cl+'">%'+pct+'</div>'+
         '<div class="anums"><b class="ac">'+ac+'</b> açık · <b class="kp">'+kp+'</b> kapanan</div></div>';
   }
-  var ttop=ta+tk2, tpct=ttop>0?Math.round(tk2/ttop*100):0, tcl=pcls(tpct);
+  var tpayda=uyumVar?(tk2+tov):(ta+tk2), tpct=tpayda>0?Math.round(tk2/tpayda*100):0, tcl=pcls(tpct);
   ah+='<div class="arow atot"><div class="agrup">TOPLAM</div>'+
       '<div class="abar"><div class="abarfill '+tcl+'" style="width:'+tpct+'%"></div>'+HEDEF+'</div>'+
       '<div class="apct '+tcl+'">%'+tpct+'</div>'+
       '<div class="anums"><b class="ac">'+ta+'</b> açık · <b class="kp">'+tk2+'</b> kapanan</div></div>';
   byId("aksiyon").innerHTML=ah||'<div class="empty">Kayıt yok</div>';
   byId("aksToplam").innerHTML="Hedef %90";
+  byId("aksNot").innerHTML=uyumVar
+    ? "Uyum oranı, termin tarihi gelmiş aksiyonlar üzerinden hesaplanmıştır; termin süreci henüz devam eden aksiyonlar kapsam dışı tutulmuştur."
+    : "";
 
   function gunListesi(arr, mount){
     var g2=[], j;
